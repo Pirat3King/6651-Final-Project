@@ -1,6 +1,7 @@
 from os import system
 import hangman_trevor
 import snake_game
+import checkers
 system('cls')
 print("Welcome to the Team Pheonix final project for CSCI 6651-01.")
 
@@ -24,8 +25,8 @@ while not game_over:
     if game == 2:
         snake_game.play_snake()
     if game == 3:
-        #checkers.play_checkers()
-        pass
+        checker_game = checkers.Checkers()
+        checker_game.run()
 
     play_again = input("Play again? (y or n): ").upper()
     while play_again != "Y" and play_again != "N":
