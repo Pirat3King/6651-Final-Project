@@ -209,5 +209,6 @@ class Checkers:
         self.root.mainloop()
 
 # run game
+# From Trevor: moved these to main.py
 # checker_game = Checkers()
 # checker_game.run()
