@@ -1,3 +1,12 @@
+"""
+File: checkers.py
+Authors: William Turner
+Brief: Implementation of checkers using tkinter GUI
+Date: 2023/10/14
+"""
+
+# OpenAI's ChatGPT was utilized to assist in the creation of this program
+
 import tkinter as tk
 
 # Constants
@@ -12,8 +21,8 @@ BEIGE = "#daa06d"
 P1 = 1  # Black player
 P2 = 2  # White player
 
-# Checker classs
-class Checker:
+# Checkers classs
+class Checkers:
     def __init__(self):
         self.board = self.init_board()
         self.selected_piece = None
@@ -200,5 +209,5 @@ class Checker:
         self.root.mainloop()
 
 # run game
-checker_game = Checker()
-checker_game.run()
+# checker_game = Checkers()
+# checker_game.run()
