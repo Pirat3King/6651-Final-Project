@@ -1,9 +1,3 @@
-# TODO 
-#   double jumps
-#   kings
-#   winning
-#   make it a class so it can be used in the main program
-
 import tkinter as tk
 
 # Constants
@@ -18,139 +12,193 @@ BEIGE = "#daa06d"
 P1 = 1  # Black player
 P2 = 2  # White player
 
-# Initialize the tkinter window
-root = tk.Tk()
-root.title("Checkers")
-canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
-canvas.pack()
-
-selected_piece = None  # To keep track of the selected piece
-current_player = P1
-
-# Initialize the game board (represented as a 2D list)
-def init_board():
-    board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
-
-    # Place black pieces (player 1) on the board
-    for row in range(GRID_SIZE - 3, GRID_SIZE):
-        for col in range(GRID_SIZE):
-            if (row + col) % 2 == 1:
-                board[row][col] = P1
-
-    # Place white pieces (player 2) on the board
-    for row in range(3):
-        for col in range(GRID_SIZE):
-            if (row + col) % 2 == 1:
-                board[row][col] = P2
-
-    return board
-
-def select_square(event):
-    x, y = event.x, event.y
-    col = x // SQUARE_SIZE
-    row = y // SQUARE_SIZE
-
-    global selected_piece, current_player
-
-    if selected_piece is None:
-        # Select a piece if the clicked square is not empty and belongs to the current player
-        if board[row][col] == current_player:
-            selected_piece = (row, col)
-        draw_board()
+# Checker classs
+class Checker:
+    def __init__(self):
+        self.board = self.init_board()
+        self.selected_piece = None
+        self.jump_in_progress = False
+        self.current_player = P1
         
-    else:
-        if (row, col) == selected_piece:
-            # Deselect the piece if it's clicked again
-            selected_piece = None
-        elif board[row][col] == current_player:
-            # Select a new piece if the clicked square belongs to the current player
-            selected_piece = (row, col)
+        self.root = tk.Tk()
+        self.root.title("Checkers")
+        self.canvas = tk.Canvas(self.root, width=WIDTH, height=HEIGHT)
+        self.canvas.pack()
+        self.canvas.bind("<Button-1>", self.select_square)
+        self.draw_board()
+
+    # Initialize 2D list for board
+    def init_board(self):
+        board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
+        
+        # Place black pieces (player 1)
+        for row in range(GRID_SIZE - 3, GRID_SIZE):
+            for col in range(GRID_SIZE):
+                if (row + col) % 2 == 1:
+                    board[row][col] = P1
+
+        # Place white pieces (player 2)
+        for row in range(3):
+            for col in range(GRID_SIZE):
+                if (row + col) % 2 == 1:
+                    board[row][col] = P2
+        return board
+
+    # Handle user selecting a square/piece
+    def select_square(self, event):
+        x, y = event.x, event.y
+        col = x // SQUARE_SIZE
+        row = y // SQUARE_SIZE
+
+        # If clicked square is not empty and belongs to current player
+        if self.selected_piece is None:
+            if self.board[row][col] == self.current_player:
+                self.selected_piece = (row, col)
+            self.draw_board()
         else:
-            # Attempt to move the selected piece to the clicked square
-            move_piece((row, col))
-        draw_board()
+            # Deselect piece if it's clicked again
+            if (row, col) == self.selected_piece: 
+                self.selected_piece = None
+            # Select new piece if clicked square belongs to current player    
+            elif self.board[row][col] == self.current_player: 
+                self.selected_piece = (row, col)
+            else:
+                # Attempt to move the selected piece to the clicked square
+                if self.move_piece((row, col)):
+                    if self.can_jump(self.selected_piece):
+                        self.jump_in_progress = True
+                        self.selected_piece = (row, col)
+                    else:
+                        self.jump_in_progress = False
+                        self.selected_piece = None
 
-def move_piece(end_pos):
-    global selected_piece, current_player
-    row, col = end_pos
+            self.draw_board()
 
-    if is_valid_move(end_pos):
-        print("valid move")
-        board[row][col] = current_player
-        board[selected_piece[0]][selected_piece[1]] = 0  # Remove the piece from the old square
-        current_player = P1 if current_player == P2 else P2  # Switch turns
-    selected_piece = None
+    # Handle movement of pieces
+    def move_piece(self, end_pos):
+        row, col = end_pos
 
-    draw_board()
+        is_valid, jumped_piece = self.is_valid_move(end_pos)
 
-def is_valid_move(end_pos):
-    global selected_piece, current_player
+        if is_valid:
+            self.board[row][col] = self.current_player
+            self.board[self.selected_piece[0]][self.selected_piece[1]] = 0
+            if jumped_piece is not None:
+                self.board[jumped_piece[0]][jumped_piece[1]] = 0
+            self.current_player = P1 if self.current_player == P2 else P2
+            
+        if self.jump_in_progress:
+            # If a jump is in progress, check if the current player can make another jump.
+            if self.can_jump(end_pos):
+                self.selected_piece = end_pos  # Set the new selected piece
+                return True
+            else:
+                self.jump_in_progress = False  # Reset jump_in_progress
+        # else:
+        #     self.jump_in_progress = False  # Reset jump_in_progress
 
-    row_start, col_start = selected_piece
-    row_end, col_end = end_pos
-
-    print(f"Start: {selected_piece}")
-    print(f"End: {end_pos}")
-
-    # Selected piece belongs to current player
-    if board[row_start][col_start] != current_player:
-        print("not your piece")
-        return False
-
-    # Board boundaries
-    if row_end < 0 or row_end >= GRID_SIZE or col_end < 0 or col_end >= GRID_SIZE:
-        print("out of bounds")
-        return False
-
-    # End position is an empty square
-    if board[row_end][col_end] != 0:
-        print("occupado")
-        return False
-
-    # Set play direction based on the current player
-    if current_player == P1:
-        move_direction = -1
-    else:
-        move_direction = 1
-
-    # Regular move (one square diagonally forward)
-    if row_end == row_start + move_direction and abs(col_end - col_start) == 1:
-        print("regular ol' move")
+        self.selected_piece = None
+        self.draw_board()
         return True
 
-    # Jump move (two squares diagonally forward over an opponent's piece)
-    if row_end == row_start + 2 * move_direction and abs(col_end - col_start) == 2:
-        print("jumpy things")
-        # Calculate the position of the jumped piece
-        jumped_row = (row_start + row_end) // 2
-        jumped_col = (col_start + col_end) // 2
+    # Check if selected end position is valid
+    def is_valid_move(self, end_pos):
+        row_start, col_start = self.selected_piece
+        row_end, col_end = end_pos
 
-        # Check if there's an opponent's piece to jump over and remove if so.
-        if board[jumped_row][jumped_col] == (3 - current_player):
-            board[jumped_row][jumped_col] = 0
-            return True
+        # Selected piece belongs to current player
+        if self.board[row_start][col_start] != self.current_player:
+            return False, None
+
+        # Board boundaries
+        if row_end < 0 or row_end >= GRID_SIZE or col_end < 0 or col_end >= GRID_SIZE:
+            return False, None
+
+        # End position is empty square
+        if self.board[row_end][col_end] != 0:
+            return False, None
+
+        # Set play direction
+        if self.current_player == P1:
+            move_direction = -1
+        else:
+            move_direction = 1
+
+        # Regular move
+        if row_end == row_start + move_direction and abs(col_end - col_start) == 1:
+            return True, None
+
+        # Jump move
+        if row_end == row_start + 2 * move_direction and abs(col_end - col_start) == 2:
+            # Position of jumped square
+            jumped_row = (row_start + row_end) // 2
+            jumped_col = (col_start + col_end) // 2
+            # If there's a piece to jump over and destination is empty
+            if self.board[jumped_row][jumped_col] == (3 - self.current_player):
+                return True, (jumped_row, jumped_col)
+            
+        return False, None
+
+    def can_jump(self, start_pos):
+        if start_pos is None:
+            return False
         
-    print("nuthin")
-    return False
+        row, col = start_pos
+        for row_offset, col_offset in [(2, -2), (2, 2)] if self.current_player == P1 else [(-2, -2), (-2, 2)]:
+            new_row = row + row_offset
+            new_col = col + col_offset
+            if self.is_valid_move((new_row, new_col)):
+                return True
+        return False
 
-def draw_board():
-    for row in range(GRID_SIZE):
-        for col in range(GRID_SIZE):
-            color = BEIGE if (row + col) % 2 == 0 else GREEN
-            canvas.create_rectangle(col * SQUARE_SIZE, row * SQUARE_SIZE, (col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE, fill=color)
+    # Handle all graphics - draws board and pieces
+    def draw_board(self):
+        self.canvas.delete("all")
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
+                # Board squares
+                color = BEIGE if (row + col) % 2 == 0 else GREEN
+                self.canvas.create_rectangle(col * SQUARE_SIZE, row * SQUARE_SIZE, (col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE, fill=color)
+                # Red selection outline 
+                if self.selected_piece is not None and (row, col) == self.selected_piece:
+                    self.canvas.create_rectangle(col * SQUARE_SIZE, row * SQUARE_SIZE, (col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE, outline=RED, width=2)
+                # Black pieces
+                if self.board[row][col] == P1:
+                    self.canvas.create_oval(col * SQUARE_SIZE + 5, row * SQUARE_SIZE + 5, (col + 1) * SQUARE_SIZE - 5, (row + 1) * SQUARE_SIZE - 5, fill=BLACK)
+                # White pieces
+                elif self.board[row][col] == P2:
+                    self.canvas.create_oval(col * SQUARE_SIZE + 5, row * SQUARE_SIZE + 5, (col + 1) * SQUARE_SIZE - 5, (row + 1) * SQUARE_SIZE - 5, fill=WHITE)
 
-            if selected_piece is not None and (row, col) == selected_piece:
-                canvas.create_rectangle(col * SQUARE_SIZE, row * SQUARE_SIZE, (col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE, outline=RED, width=2)
+    def check_win(self):
+        opponent = P1 if self.current_player == P2 else P2
 
-            if board[row][col] == P1:
-                canvas.create_oval(col * SQUARE_SIZE + 5, row * SQUARE_SIZE + 5, (col + 1) * SQUARE_SIZE - 5, (row + 1) * SQUARE_SIZE - 5, fill=BLACK)
+        # Check if the opponent has no pieces remaining
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
+                if self.board[row][col] == opponent:
+                    return False
 
-            elif board[row][col] == P2:
-                canvas.create_oval(col * SQUARE_SIZE + 5, row * SQUARE_SIZE + 5, (col + 1) * SQUARE_SIZE - 5, (row + 1) * SQUARE_SIZE - 5, fill=WHITE)
+        # Check if the opponent can move any piece
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
+                if self.board[row][col] == self.current_player:
+                    if self.can_jump((row, col)):
+                        return False  # The opponent can still jump
+                    # Check regular moves
+                    for row_offset, col_offset in [(1, -1), (1, 1)] if self.current_player == P1 else [(-1, -1), (-1, 1)]:
+                        new_row = row + row_offset
+                        new_col = col + col_offset
+                        if self.is_valid_move((new_row, new_col))[0]:
+                            return False  # The opponent can still make a regular move
 
-board = init_board()
+        # If no opponent pieces left or they can't move, the current player wins
+        tk.messagebox.showinfo("Game Over", f"Player {self.current_player} wins!")
+        self.root.quit()  # Exit the main loop when a player wins
+        return True      
 
-canvas.bind("<Button-1>", select_square)
-draw_board()
+    def run(self):
+        self.root.mainloop()
 
-root.mainloop()
+# run game
+checker_game = Checker()
+checker_game.run()
