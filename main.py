@@ -1,7 +1,7 @@
 from os import system
-import hangman_trevor
-import snake_game
-import checkers
+import hangman.hangman_trevor as hangman
+import snake.snake_game as snake
+import checkers.checkers as checkers
 system('cls')
 print("Welcome to the Team Pheonix final project for CSCI 6651-01.")
 
@@ -21,9 +21,9 @@ while not game_over:
     game = main_menu()
 
     if game == 1:
-        hangman_trevor.play_hangman()
+        hangman.play_hangman()
     if game == 2:
-        snake_game.play_snake()
+        snake.play_snake()
     if game == 3:
         checker_game = checkers.Checkers()
         checker_game.run()
