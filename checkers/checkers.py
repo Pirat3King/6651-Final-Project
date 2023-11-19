@@ -23,23 +23,69 @@ BEIGE = "#daa06d"
 P1 = 1  # Black player
 P2 = 2  # White player
 
+# Set directory of game over screen image
 cur_path = os.path.dirname(__file__)
 crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
-# Checkers classs
+# Checkers class
 class Checkers:
     def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Checkers")
+
+        # Initialize canvas
+        self.canvas = tk.Canvas(self.root, width=WIDTH, height=HEIGHT)
+        self.canvas.pack()
+
+        # Make game window fixed size
+        self.root.geometry(f"{WIDTH}x{HEIGHT}")
+
+        self.init_game()
+        self.set_player_names()
+
+    # Initialize game components and draw the board in the background
+    def init_game(self):
         self.board = self.init_board()
         self.selected_piece = None
         self.jump_in_progress = False
         self.current_player = P1
+        self.game_over = False
+        self.winner = ""
+
+        self.win_img = ImageTk.PhotoImage(Image.open(crown_img)) 
+        self.win_box = ImageTk.PhotoImage(Image.new('RGBA', (WIDTH-80, HEIGHT-80), (147, 151, 153, 230))) 
         
-        self.root = tk.Tk()
-        self.root.title("Checkers")
-        self.canvas = tk.Canvas(self.root, width=WIDTH, height=HEIGHT)
-        self.canvas.pack()
-        self.img = ImageTk.PhotoImage(Image.open(crown_img))
-        self.canvas.bind("<Button-1>", self.select_square)
+        self.canvas.bind("<Button-1>", self.mouse_click)
+        
+        self.draw_board()
+
+    # Prompt user to input player names via entry boxes 
+    def set_player_names(self):
+        # Entry boxes
+        self.player1_entry = tk.Entry(self.root)
+        self.player2_entry = tk.Entry(self.root)
+        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1:", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2:", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_window(WIDTH // 2, HEIGHT // 2 + 30, window=self.player2_entry)
+
+        # Submit button
+        self.submit_btn = tk.Button(self.root, text="Start Game", command=self.start_game)
+        self.canvas.create_window(WIDTH // 2, HEIGHT * 2 // 3, window=self.submit_btn)
+
+    # Save player names, clear initial screen, and draw board to start game
+    def start_game(self):
+        # Get player names from the entries
+        self.player1 = self.player1_entry.get()
+        self.player2 = self.player2_entry.get()
+
+        # Clear the canvas and remove entry fields and submit button
+        self.canvas.delete("all")
+        self.player1_entry.destroy()
+        self.player2_entry.destroy()
+        self.submit_btn.destroy()
+
         self.draw_board()
 
     # Initialize 2D list for board
@@ -53,23 +99,30 @@ class Checkers:
                     board[row][col] = P1
 
         # # Place white pieces (player 2)
-        # for row in range(3):
-        #     for col in range(GRID_SIZE):
-        #         if (row + col) % 2 == 1:
-        #             board[row][col] = P2
-        # board[1][4] = P1 # test king making
-        board[4][3] = P2
-        board[2][5] = P2
+        for row in range(3):
+            for col in range(GRID_SIZE):
+                if (row + col) % 2 == 1:
+                    board[row][col] = P2
+
+        # test king functionality
+        # board[1][4] = P1 
+        # board[1][6] = P2
+        # board[2][7] = P2
+        # test double jump
+        # board[4][3] = P2
+        # board[2][5] = P2
         return board
 
-    # Handle user selecting a square/piece
-    def select_square(self, event):
+    # Handle user clicking on the board
+    def mouse_click(self, event):
         x, y = event.x, event.y
         col = x // SQUARE_SIZE
         row = y // SQUARE_SIZE
 
-        print(f"Selected square: {row},{col}")
+        self.select_square(row, col)
 
+    # Handle user selecting a square/piece
+    def select_square(self, row, col):
         # Check if a piece is already selected
         if self.selected_piece is None:
             # Select if piece belongs to current player
@@ -81,20 +134,27 @@ class Checkers:
             if (row, col) == self.selected_piece: 
                 self.selected_piece = None
                 self.jump_in_progress = False
-
+            
+            # Select new piece if clicked square belongs to current player    
+            elif self.board[row][col] == self.current_player: 
+                self.selected_piece = (row, col)
+            
+            # Attempt to move the selected piece to the clicked square
             else:
-                # Attempt to move the selected piece to the clicked square
                 if self.move_piece((row, col)):
-                    print(f"continue jumpimg? {self.jump_in_progress}")
-                    if self.jump_in_progress and self.can_jump((row, col)):  # Continue if another jump is possible
+                    # If a jump was made, check for double jump
+                    if self.jump_in_progress and self.can_jump((row, col)):
                         self.selected_piece = (row, col)
-                        print(f"new selected piece: {row},{col}")
-                    else:
+                    
+                    # If another jump is not possible, end turn
+                    else: 
                         self.jump_in_progress = False
                         self.selected_piece = None
-                    
-                    self.check_win()
-                    self.current_player = P2 if self.current_player == P1 else P1
+                        if self.check_win() == False:
+                            self.current_player = P2 if self.current_player == P1 else P1
+                        else:
+                            self.game_over = True
+                            return
 
             self.draw_board()
 
@@ -109,7 +169,6 @@ class Checkers:
             self.board[row][col] = self.board[self.selected_piece[0]][self.selected_piece[1]]
             self.board[self.selected_piece[0]][self.selected_piece[1]] = 0
             if jumped_piece != None:
-                print("jumped a piece")
                 self.board[jumped_piece[0]][jumped_piece[1]] = 0
                 self.jump_in_progress = True
             else:
@@ -137,8 +196,6 @@ class Checkers:
         if player is None:
             player = self.current_player
 
-        print(f"checking valid move from {start_pos} to {end_pos} for player {player}")
-
         row_start, col_start = start_pos
         row_end, col_end = end_pos
 
@@ -147,45 +204,51 @@ class Checkers:
             print("out of bounds")
             return False, None
 
-        # End position is empty square
+        # Check end position is empty
         if self.board[row_end][col_end] != 0:
-            print("target not empty")
+            print("target occupied")
             return False, None
         
         # King piece
         if self.board[row_start][col_start] in [P1+2, P2+2]:
             print("king piece")
             # Regular move
-            if abs(row_end - row_start) == 1 and abs(col_end - col_start) == 1:
-                print("valid king move")
+            if self.jump_in_progress == False and abs(row_end - row_start) == 1 and abs(col_end - col_start) == 1:
+                print("king reg move")
                 return True, None
             
             # Jump move
             if abs(row_end - row_start) == 2 and abs(col_end - col_start) == 2:
-                print("potential king jump")
-                return self.do_jump(end_pos)
+                print("king jump move")
+                return self.calc_jump(end_pos, start_pos, player)
         
         # Regular piece
         elif self.board[row_start][col_start] in [P1, P2]:
-            print("regular piece")
+            print("reg piece")
             # Set play direction
             move_direction = -1 if player == P1 else 1
 
             # Regular move
-            if row_end == row_start + move_direction and abs(col_end - col_start) == 1:
-                print("valid regular move")
+            if self.jump_in_progress == False and row_end == row_start + move_direction and abs(col_end - col_start) == 1:
+                print("reg move")
                 return True, None
 
             # Jump move
             if row_end == row_start + 2 * move_direction and abs(col_end - col_start) == 2:
-                print("potential regular jump")
-                return self.do_jump(end_pos)
+                print("reg jump")
+                return self.calc_jump(end_pos, start_pos, player)
         else:
-            print("other invalid move")   
-        return False, None
+            print("other invalid move")
+            return False, None
     
-    def do_jump(self, end_pos):
-        row_start, col_start = self.selected_piece
+    def calc_jump(self, end_pos, start_pos=None, player=None):
+        if start_pos is None:
+            start_pos = self.selected_piece
+
+        if player is None:
+            player = self.current_player
+
+        row_start, col_start = start_pos
         row_end, col_end = end_pos
 
         # Calc position of square to jump
@@ -193,21 +256,21 @@ class Checkers:
         jumped_col = (col_start + col_end) // 2
 
         # Check if there's an opponent piece to jump over
-        print(f"start: {self.selected_piece}")
-        print(f"end: {row_end},{col_end}")
-        print(f"jumped place: {jumped_row},{jumped_col}")
-        print(f"jumped piece = {self.board[jumped_row][jumped_col]}")
-        print(f"player {self.current_player}")
-        if self.board[jumped_row][jumped_col] == (3 - self.current_player) or self.board[jumped_row][jumped_col] == (5 - self.current_player):
-            print("valid jump")
+        if self.board[jumped_row][jumped_col] == (3 - player) or self.board[jumped_row][jumped_col] == (5 - player):
+            print("can jump")
             return True, (jumped_row, jumped_col)
         else:
-            print("no one to jump")
+            print("no opponent to jump")
             return False, None
         
     # Check if a move is possible
-    def can_jump(self, start_pos):
-        print(f"checking can jump from {start_pos}")
+    def can_jump(self, start_pos=None, player=None):
+        if start_pos is None:
+            start_pos = self.selected_piece
+
+        if player is None:
+            player = self.current_player
+
         row, col = start_pos
         piece = self.board[row][col]
 
@@ -219,15 +282,14 @@ class Checkers:
         elif piece in [P1 + 2, P2 + 2]:  # If piece is a king
             jump_moves = [(-2, -2), (-2, 2), (2, -2), (2, 2)]
 
-        # print(f"Piece at {start_pos} (player {piece}) possible moves: {jump_moves}")
-
         # Check jump moves
         for row_offset, col_offset in jump_moves:
             target_row = row + row_offset
             target_col = col + col_offset
-            # print(f"Checking from {start_pos} to target row: {target_row}, target col: {target_col}")
-            if self.is_valid_move((target_row, target_col), start_pos=start_pos)[0]:
-                print(f"can jump to {target_row},{target_col}")
+            print(f"start pos: {start_pos}")
+            print(f"target sqr: {target_row}, {target_col}")
+            print(f"player: {player}")
+            if self.is_valid_move((target_row, target_col), start_pos, player)[0]:
                 return True
         return False
 
@@ -236,7 +298,6 @@ class Checkers:
         if player is None:
             player = self.current_player
 
-        print(f"checking can move from {start_pos}")
         row, col = start_pos
         piece = self.board[row][col]
 
@@ -249,14 +310,24 @@ class Checkers:
             reg_move = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
         # Check regular moves
+        print("checking can move or jump")
+        print("checking reg moves")
+        print("---------------------------------")
         for row_offset, col_offset in reg_move:
             target_row = row + row_offset
             target_col = col + col_offset
+            print(f"start pos: {start_pos}")
+            print(f"target sqr: {target_row}, {target_col}")
+            print(f"player: {player}")
             if self.is_valid_move((target_row, target_col), start_pos=start_pos, player=player)[0]:
+                print("can move")
                 return True
         
-        # Check regular moves
-        self.can_jump(start_pos)
+        # Check jump moves
+        print("checking jump moves")
+        print("---------------------------------")
+        if self.can_jump(start_pos, player):
+            return True
             
         return False
     
@@ -267,7 +338,6 @@ class Checkers:
     # Handle all graphics - draws board and pieces
     def draw_board(self):
         self.canvas.delete("all")
-        print(f"Player {self.current_player}'s turn")
         for row in range(GRID_SIZE):
             for col in range(GRID_SIZE):
                 # Board squares
@@ -292,10 +362,7 @@ class Checkers:
                     self.canvas.create_text(col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2, text="K", font=('Helvetica', 14), fill=BLACK)
 
     def check_win(self):
-        print("checking for winners")
-        print("------------------------------------------")
         opponent = P2 if self.current_player == P1 else P1
-        print(f"opponent = {opponent}")
 
         # Check if the opponent can move any piece
         for row in range(GRID_SIZE):
@@ -303,7 +370,6 @@ class Checkers:
                 piece = self.board[row][col]
                 if piece == opponent or piece - 2 == opponent:
                     if self.can_move_or_jump((row, col), opponent):
-                        print("no winner yet")
                         return False # Opponent can still move
 
         # If no opponent pieces left or they can't move, the current player wins
@@ -311,17 +377,23 @@ class Checkers:
         return True      
     
     def win(self):
-        self.canvas.unbind("<Button-1>")
-        self.canvas.delete("all")
-       
-        self.canvas.create_text(WIDTH/2, 50, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
-        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.img)
-        self.canvas.create_text(WIDTH/2, 350, text=f"Player {self.current_player} wins!", fill="black", font=('Helvetica 15 bold'))
-        quit_button = tk.Button(self.root,text='QUIT',command=self.root.quit)
-        self.canvas.pack()
-        quit_button.pack(side="bottom", expand=True)
+        self.winner = self.player1 if self.current_player == P1 else self.player2
 
-        #TODO update score
+        self.canvas.unbind("<Button-1>")
+        quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
+
+        # Display the translucent image on the canvas
+        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box)
+        self.canvas.create_text(WIDTH/2, HEIGHT/5, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_img)
+        self.canvas.create_text(WIDTH/2, HEIGHT/1.33, text=f"{self.winner} wins!", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
+    
+    def get_winner(self):
+        if self.game_over:
+            return self.winner
+        else:
+            return "Game not over"
 
     def run(self):
         self.root.mainloop()
@@ -329,3 +401,4 @@ class Checkers:
 # run game
 checker_game = Checkers()
 checker_game.run()
+print(f"Winner: {checker_game.get_winner()}")
