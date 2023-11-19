@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog
+import json
 from checkers.checkers import Checkers
 from hangman.hangman_kiren import Hangman, pack_hangman_elements, unpack_hangman_elements
 from snake.snake import Snake
@@ -7,8 +8,64 @@ from snake.snake import Snake
 
 game_running = False  # Flag to track whether a game is currently running
 
+# function to handle user data
+def get_user_data(username):
+    try:
+        with open("user_data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        # If the file doesn't exist, create an empty JSON structure
+        data = {"users": []}
+
+    users = data.get("users", [])
+
+    for user in users:
+        if user["username"] == username:
+            return user
+
+    # If the username is not found, create a new user
+    new_user = {"username": username, "hangman_wins": 0, "snake_score": 0, "checkers_wins": 0}
+    users.append(new_user)
+
+    # Update the data dictionary
+    data["users"] = users
+
+    # Save the updated data to the file
+    with open("user_data.json", "w") as file:
+        json.dump(data, file)
+
+    return new_user
+
+
+# function to show the scoreboard
+def show_scoreboard():
+    try:
+        with open("user_data.json", "r") as file:
+            data = json.load(file)
+
+        users = data.get("users", [])
+        scoreboard_text = "\n".join(
+            f"{user['username']}: Hangman Wins - {user['hangman_wins']}, Snake Score - {user['snake_score']}, Checkers Wins - {user['checkers_wins']}"
+            for user in users)
+
+        # Create a custom Toplevel window
+        scoreboard_window = tk.Toplevel(root)
+        scoreboard_window.title("Scoreboard")
+
+        # Create a Label to display the scoreboard text
+        scoreboard_label = tk.Label(scoreboard_window, text=scoreboard_text, padx=20, pady=20)
+        scoreboard_label.pack()
+
+        # Add a button to close the window
+        close_button = tk.Button(scoreboard_window, text="Close", command=scoreboard_window.destroy)
+        close_button.pack()
+    except FileNotFoundError:
+        messagebox.showinfo("Scoreboard", "No scores found.")
+
 # Get the username from the user before starting the game
 username = simpledialog.askstring("Phoenix Games", "Welcome to Phoenix Games! Enter your username:")
+
+user_data = get_user_data(username)
 
 root = tk.Tk()
 root.title("Team Phoenix")
@@ -59,7 +116,11 @@ snake_game = Snake(root,snake_canvas_widget)
 # Used to reset the snake game, we need to
 restart_button = tk.Button(root, text="Restart Game", command=snake_game.restart_game).place(x=850,y=800)
 
+# Button to show scoreboard
+scoreboard_button = tk.Button(root, text="Show Scoreboard", command=show_scoreboard)
+scoreboard_button.place(relx=.95, rely=.95, anchor=tk.SE)
+
 # Hangman must be last otherwise it bombs out
-Hangman(root)
+Hangman(root, user_data)
 
 root.mainloop()

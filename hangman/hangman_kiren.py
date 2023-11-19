@@ -7,13 +7,17 @@ Goal: This is a program to run a simple game of hangman
 """
 
 import random
+import json
 import tkinter as tk
 
 class Hangman:
 
-    def __init__(self, main_tkinter):
+    def __init__(self, main_tkinter, user_data):
         global canvas, attempts_label, letters_guessed_label, letter_label, letter_entry, guess_button, word_label
         global word_display, message_label, restart_button, exit_button
+
+        self.user_data = user_data  # Pass user_data to Hangman
+
         self.window = main_tkinter
 
         # Initialize variables
@@ -47,12 +51,22 @@ class Hangman:
 
         message_label = tk.Label(self.window, text="")
 
-        restart_button = tk.Button(self.window, text="Restart", command=self.play_again)
+        restart_button = tk.Button(self.window, text="Restart", command=lambda: self.play_again(user_data))
 
         exit_button = tk.Button(self.window, text="Exit", command=self.exit_game)
 
         # Start the game
         self.update_hangman()
+
+    #function to get hangman wins
+    def hangman_wins(self):
+        return self.user_data.get("hangman_wins", 0)
+
+    #function to update hangman wins in the json file
+    def update_hangman_wins(self):
+        self.user_data["hangman_wins"] = self.hangman_wins() + 1
+        with open("user_data.json", "w") as file:
+            json.dump({"users": [self.user_data]}, file)
 
     # Function to get a random word from wordlist
     def choose_random_word(self):
@@ -103,14 +117,15 @@ class Hangman:
 
         if self.is_game_won():
             message_label.config(text="Congratulations! You've won!")
+            self.update_hangman_wins()  # Call the method to update wins
         elif self.current_attempt == self.attempts:
             message_label.config(text=f"Game over! The word was '{self.word_to_guess}'")
 
     # Function to play again
-    def play_again(self):
+    def play_again(self, user_data):
         self.reset_game()
         unpack_hangman_elements()
-        hangman_game = Hangman(self.window)
+        hangman_game = Hangman(self.window, user_data)
         pack_hangman_elements()
 
     # Function to exit the game
