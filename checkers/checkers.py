@@ -393,7 +393,7 @@ class Checkers:
 
     def reset_game(self):
         self.canvas.delete("all")
-        self.__init__(self.root, self.canvas)
+        self.__init__(self.root, self.canvas, self.user_data)
 
     # # Run the game
     # def run(self):

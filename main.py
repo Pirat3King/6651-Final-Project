@@ -78,18 +78,15 @@ root.state('zoomed') # Defaults to maximized view
 # Each function will start the selected game and close all other games
 def play_hangman():
     pack_hangman_elements()
-    pack_hangman_elements()
     checkers_canvas_widget.pack_forget()
     snake_canvas_widget.pack_forget()
 
 def play_snake():
     unpack_hangman_elements()
-    unpack_hangman_elements()
     checkers_canvas_widget.pack_forget()
     snake_canvas_widget.pack(pady=100)
 
 def play_checkers():
-    unpack_hangman_elements()
     unpack_hangman_elements()
     checkers_canvas_widget.pack(pady=100)
     snake_canvas_widget.pack_forget()
@@ -139,8 +136,9 @@ username_entry.place(x=200, y=540)"""
 checkers_canvas_widget = tk.Canvas(root, width=400, height=400)
 checkers_game = Checkers(root, checkers_canvas_widget, user_data)
 
+
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
-snake_game = Snake(root,snake_canvas_widget)
+snake_game = Snake(root,snake_canvas_widget, user_data)
 
 # Used to reset the snake game, we need to
 restart_button = tk.Button(root, text="Restart Game", command=reset_game).place(x=850,y=800)
