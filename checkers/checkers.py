@@ -98,18 +98,18 @@ class Checkers:
                     board[row][col] = P1
 
         # # Place white pieces (player 2)
-        for row in range(3):
-            for col in range(GRID_SIZE):
-                if (row + col) % 2 == 1:
-                    board[row][col] = P2
+        # for row in range(3):
+        #     for col in range(GRID_SIZE):
+        #         if (row + col) % 2 == 1:
+        #             board[row][col] = P2
 
         # test king functionality (comment the above loops to clear other pieces)
         # board[6][1] = P2
         # board[1][4] = P1 
 
         # test double jump
-        # board[4][3] = P2
-        # board[2][5] = P2
+        board[4][3] = P2
+        board[2][5] = P2
         return board
     
     # Draw a single piece 
