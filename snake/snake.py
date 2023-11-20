@@ -22,7 +22,7 @@ class Snake:
 
     # main_tkinter is the tkinter window (root) passed in from main
     # the_canvas_window is a canvas widget created in main spefically for the snake game
-    def __init__(self, main_tkinter, the_canvas_window, user_data):
+    def __init__(self, main_tkinter, the_canvas_window, user_data, username):
         # Initial snake position and direction
         self.snake = [(4, 5), (4, 4), (4, 3)]
         self.direction = (0, 1)
@@ -52,6 +52,7 @@ class Snake:
         main_tkinter.bind("<Right>", self.on_key_press)
 
         self.user_data = user_data
+        self.username = username
 
         # Start the game
         self.move_snake()
@@ -150,10 +151,27 @@ class Snake:
 
     #function to update snake score in the json file
     def update_snake_score(self):
-        if self.user_data["snake_score"] < self.score:
-            self.user_data["snake_score"] = self.score
-            with open("user_data.json", "w") as file:
-                json.dump({"users": [self.user_data]}, file, indent=4)
+        # if self.user_data["snake_score"]:
+        #     self.user_data["snake_score"] = self.score
+        #     with open("user_data.json", "w") as file:
+        #         json.dump({"users": [self.user_data]}, file, indent=4)
+
+        users = self.user_data.get("users", [])
+
+        for user in users:
+            if user["username"] == self.username:
+                if user["snake_score"] < self.score:
+                    self.user_data["snake_score"] = self.score
+                    break
+
+        # Update the data dictionary
+        self.user_data["users"] = users
+
+        # Save the updated data to the file
+        with open("user_data.json", "w") as file:
+            json.dump(self.user_data, file, indent=4)
+
+        return
 
 
 # snake_game = Snake()

@@ -30,10 +30,10 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self, root_window, the_canvas_window, user_data):
+    def __init__(self, root_window, the_canvas_window):
         self.root = root_window
         self.root.title("Checkers")
-        self.user_data = user_data
+        # self.user_data = user_data
 
         # Initialize canvas
         self.canvas = the_canvas_window
@@ -45,11 +45,36 @@ class Checkers:
         self.set_player_names()
 
     def update_checkers_score(self):
-        print(f"winner: {self.winner}")
+        try:
+            with open("user_data.json", "r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            # If the file doesn't exist, create an empty JSON structure
+            data = {"users": []}
 
-        self.user_data["checkers_wins"] = self.user_data.get("checkers_wins", 0) + 1
+        users = data.get("users", [])
+        user_found = False
+
+        for user in users:
+            if user["username"] == self.winner:
+                user["checkers_wins"] = user.get("checkers_wins", 0) + 1
+                user_found = True
+                break
+        
+        if not user_found:
+            # If the username is not found, create a new user and add checkers win
+            new_user = {"username": self.winner, "hangman_wins": 0, "snake_score": 0, "checkers_wins": 1}
+            users.append(new_user)
+
+        # Update the data dictionary
+        data["users"] = users
+
+        # Save the updated data to the file
         with open("user_data.json", "w") as file:
-            json.dump({"users": [self.user_data]}, file, indent=4)
+            json.dump(data, file, indent=4)
+
+        return
+
 
     # Initialize game components and draw the board in the background
     def init_game(self):
@@ -393,7 +418,7 @@ class Checkers:
 
     def reset_game(self):
         self.canvas.delete("all")
-        self.__init__(self.root, self.canvas, self.user_data)
+        self.__init__(self.root, self.canvas)
 
     # # Run the game
     # def run(self):

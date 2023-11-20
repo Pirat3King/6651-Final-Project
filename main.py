@@ -67,7 +67,12 @@ def show_scoreboard():
 # Get the username from the user before starting the game
 username = simpledialog.askstring("Phoenix Games", "Welcome to Phoenix Games! Enter your username:")
 
-user_data = get_user_data(username)
+def read_data_to_json():
+    with open("user_data.json", "r") as file:
+        return json.load(file)
+
+name = get_user_data(username)
+user_data = read_data_to_json()
 
 root = tk.Tk()
 root.title("Team Phoenix")
@@ -134,11 +139,11 @@ username_entry = tk.Entry(root)
 username_entry.place(x=200, y=540)"""
 
 checkers_canvas_widget = tk.Canvas(root, width=400, height=400)
-checkers_game = Checkers(root, checkers_canvas_widget, user_data)
+checkers_game = Checkers(root, checkers_canvas_widget)
 
 
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
-snake_game = Snake(root,snake_canvas_widget, user_data)
+snake_game = Snake(root,snake_canvas_widget, user_data, name)
 
 # Used to reset the snake game, we need to
 restart_button = tk.Button(root, text="Restart Game", command=reset_game).place(x=850,y=800)
