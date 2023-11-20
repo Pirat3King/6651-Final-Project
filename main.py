@@ -32,7 +32,7 @@ def get_user_data(username):
 
     # Save the updated data to the file
     with open("user_data.json", "w") as file:
-        json.dump(data, file)
+        json.dump(data, file, indent=4)
 
     return new_user
 
