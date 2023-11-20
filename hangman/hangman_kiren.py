@@ -175,5 +175,3 @@ def unpack_hangman_elements():
     message_label.pack_forget()
     restart_button.place_forget()
     exit_button.place_forget()
-
-

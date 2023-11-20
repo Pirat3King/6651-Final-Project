@@ -10,6 +10,7 @@ Date: 2023/10/14
 import tkinter as tk
 from PIL import Image, ImageTk
 import os
+import json
 
 # Constants
 WIDTH, HEIGHT = 400, 400
@@ -29,9 +30,10 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self, root_window, the_canvas_window):
+    def __init__(self, root_window, the_canvas_window, user_data):
         self.root = root_window
         self.root.title("Checkers")
+        self.user_data = user_data
 
         # Initialize canvas
         self.canvas = the_canvas_window
@@ -41,6 +43,13 @@ class Checkers:
 
         self.init_game()
         self.set_player_names()
+
+    def update_checkers_score(self):
+        print(f"winner: {self.winner}")
+
+        self.user_data["checkers_wins"] = self.user_data.get("checkers_wins", 0) + 1
+        with open("user_data.json", "w") as file:
+            json.dump({"users": [self.user_data]}, file)
 
     # Initialize game components and draw the board in the background
     def init_game(self):
@@ -183,6 +192,7 @@ class Checkers:
                             self.current_player = P2 if self.current_player == P1 else P1
                         else: # Exit if win
                             self.game_over = True
+                            self.update_checkers_score()
                             return
 
             self.draw_board()
@@ -364,7 +374,7 @@ class Checkers:
         # Disable clicking on squares
         self.canvas.unbind("<Button-1>")
 
-        #Create exit button
+        # Create exit button
         # quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
 
         # Display win screen
@@ -375,16 +385,15 @@ class Checkers:
         # self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
     
     # Returns the winner's name if it exists
-    def get_winner(self):
-        if self.game_over:
-            return self.winner
-        else:
-            return "No winner"
+    # def get_winner(self):
+    #     if self.game_over:
+    #         return self.winner
+    #     else:
+    #         return "No winner"
 
     def reset_game(self):
         self.canvas.delete("all")
-        self.board = self.init_game()
-        self.start_game()
+        self.__init__(self.root, self.canvas)
 
     # # Run the game
     # def run(self):
