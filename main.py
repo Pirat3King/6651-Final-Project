@@ -124,3 +124,6 @@ scoreboard_button.place(relx=.95, rely=.95, anchor=tk.SE)
 Hangman(root, user_data)
 
 root.mainloop()
+
+# Update snake score after closing the window
+snake_game.update_snake_score()
