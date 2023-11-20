@@ -49,7 +49,7 @@ class Checkers:
 
         self.user_data["checkers_wins"] = self.user_data.get("checkers_wins", 0) + 1
         with open("user_data.json", "w") as file:
-            json.dump({"users": [self.user_data]}, file)
+            json.dump({"users": [self.user_data]}, file, indent=4)
 
     # Initialize game components and draw the board in the background
     def init_game(self):
