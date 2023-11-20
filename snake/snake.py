@@ -168,7 +168,7 @@ class Snake:
         self.user_data["users"] = users
 
         # Save the updated data to the file
-        with open("user_data.json", "w") as file:
+        with open("user_data.json", "w") as file: 
             json.dump(self.user_data, file, indent=4)
 
         return
