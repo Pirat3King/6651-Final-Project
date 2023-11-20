@@ -29,13 +29,12 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self):
-        self.root = tk.Tk()
+    def __init__(self, root_window, the_canvas_window):
+        self.root = root_window
         self.root.title("Checkers")
 
         # Initialize canvas
-        self.canvas = tk.Canvas(self.root, width=WIDTH, height=HEIGHT)
-        self.canvas.pack()
+        self.canvas = the_canvas_window
 
         # Make game window fixed size
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
@@ -366,14 +365,14 @@ class Checkers:
         self.canvas.unbind("<Button-1>")
 
         #Create exit button
-        quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
+        # quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
 
         # Display win screen
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box)
         self.canvas.create_text(WIDTH/2, HEIGHT/5, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_img)
         self.canvas.create_text(WIDTH/2, HEIGHT/1.33, text=f"{self.winner} wins!", fill="black", font=('Helvetica 15 bold'))
-        self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
+        # self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
     
     # Returns the winner's name if it exists
     def get_winner(self):
@@ -382,9 +381,14 @@ class Checkers:
         else:
             return "No winner"
 
-    # Run the game
-    def run(self):
-        self.root.mainloop()
+    def reset_game(self):
+        self.canvas.delete("all")
+        self.board = self.init_game()
+        self.start_game()
+
+    # # Run the game
+    # def run(self):
+    #     self.root.mainloop()
 
 # Uncomment to run outside of main application
 # checker_game = Checkers()
