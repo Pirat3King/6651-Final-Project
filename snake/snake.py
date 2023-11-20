@@ -37,10 +37,10 @@ class Snake:
 
         # Create the score label
         self.score_label = tk.Label(self.canvas, text="Score: 0", fg="white", bg="black")
-        # self.score_label.pack()
+        self.score_label.place(x=200, y=2)
 
         # Create the restart button
-        # This is in in main, but it may be more efficient to implement in this file, commented out for now
+        # This is in main, but it may be more efficient to implement in this file, commented out for now
         # self.restart_button = tk.Button(main_tkinter, text="Restart", command=self.restart_game)
         # self.restart_button.pack()
 
