@@ -1,9 +1,0 @@
-{
-    "will": [
-        {
-            "hangman_score": 0,
-            "snake_score": 0,
-            "checkers_score": 0
-        }
-    ]
-}
