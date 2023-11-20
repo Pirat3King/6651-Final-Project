@@ -111,7 +111,7 @@ checkers_canvas_widget = tk.Canvas(root, width=400, height=400)
 checkers_game = Checkers(root, checkers_canvas_widget)
 
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
-snake_game = Snake(root,snake_canvas_widget)
+snake_game = Snake(root,snake_canvas_widget, user_data)
 
 # Used to reset the snake game, we need to
 restart_button = tk.Button(root, text="Restart Game", command=snake_game.restart_game).place(x=850,y=800)
