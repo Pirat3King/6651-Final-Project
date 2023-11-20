@@ -8,6 +8,7 @@ OpenAI's ChatGPT was utilized to assist in the creation of this program
 
 import tkinter as tk
 import random
+import json
 
 # Constants
 CANVAS_SIZE = 400
@@ -21,7 +22,7 @@ class Snake:
 
     # main_tkinter is the tkinter window (root) passed in from main
     # the_canvas_window is a canvas widget created in main spefically for the snake game
-    def __init__(self, main_tkinter, the_canvas_window):
+    def __init__(self, main_tkinter, the_canvas_window, user_data):
         # Initial snake position and direction
         self.snake = [(4, 5), (4, 4), (4, 3)]
         self.direction = (0, 1)
@@ -49,6 +50,8 @@ class Snake:
         main_tkinter.bind("<Down>", self.on_key_press)
         main_tkinter.bind("<Left>", self.on_key_press)
         main_tkinter.bind("<Right>", self.on_key_press)
+
+        self.user_data = user_data
 
         # Start the game
         self.move_snake()
@@ -133,6 +136,7 @@ class Snake:
             self.direction = (1, 0)
 
     def restart_game(self):
+        self.update_snake_score()
         self.snake = [(4, 5), (4, 4), (4, 3)]
         self.direction = (0, 1)
         self.generate_food()
@@ -143,6 +147,14 @@ class Snake:
 
     def run(self):
         self.move_snake()
+
+    #function to update snake score in the json file
+    def update_snake_score(self):
+        if self.user_data["snake_score"] < self.score:
+            self.user_data["snake_score"] = self.score
+            with open("user_data.json", "w") as file:
+                json.dump({"users": [self.user_data]}, file, indent=4)
+
 
 # snake_game = Snake()
 # snake_game.run()
