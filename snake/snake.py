@@ -158,10 +158,12 @@ class Snake:
 
         users = self.user_data.get("users", [])
 
-        for user in users:
-            if user["username"] == self.username:
+        for user in users:         
+            if user["username"] == self.username["username"]:
                 if user["snake_score"] < self.score:
-                    self.user_data["snake_score"] = self.score
+                    # This doesn't update the api, make sure to access the information from user or username, not user_data
+                    # self.user_data["snake_score"] = self.score
+                    user["snake_score"] = self.score
                     break
 
         # Update the data dictionary

@@ -139,7 +139,7 @@ username_entry = tk.Entry(root)
 username_entry.place(x=200, y=540)"""
 
 checkers_canvas_widget = tk.Canvas(root, width=400, height=400)
-checkers_game = Checkers(root, checkers_canvas_widget)
+checkers_game = Checkers(root, checkers_canvas_widget, user_data, name)
 
 
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
@@ -153,7 +153,7 @@ scoreboard_button = tk.Button(root, text="Show Scoreboard", command=show_scorebo
 scoreboard_button.place(relx=.95, rely=.95, anchor=tk.SE)
 
 # Hangman must be last otherwise it bombs out
-Hangman(root, user_data)
+Hangman(root, user_data, name)
 
 root.mainloop()
 

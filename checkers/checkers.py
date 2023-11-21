@@ -3,6 +3,11 @@ File: checkers.py
 Authors: William Turner
 Brief: Implementation of checkers using tkinter GUI
 Date: 2023/10/14
+
+From Trevor: I changed the way the api is accessed in the program,
+the json is passed in from main like the other games. 
+I also did away with the player 1 entry. To me it makes more sence to just set 
+player 1 to the current user when the application is launched.
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -30,10 +35,9 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self, root_window, the_canvas_window):
+    def __init__(self, root_window, the_canvas_window, user_data, username):
         self.root = root_window
         self.root.title("Checkers")
-        # self.user_data = user_data
 
         # Initialize canvas
         self.canvas = the_canvas_window
@@ -41,23 +45,21 @@ class Checkers:
         # Make game window fixed size
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
+        self.user_data = user_data
+        self.username = username
+        self.player1 = username["username"]
+
         self.init_game()
         self.set_player_names()
 
     def update_checkers_score(self):
-        try:
-            with open("user_data.json", "r") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            # If the file doesn't exist, create an empty JSON structure
-            data = {"users": []}
 
-        users = data.get("users", [])
+        users = self.user_data.get("users", [])
         user_found = False
 
         for user in users:
             if user["username"] == self.winner:
-                user["checkers_wins"] = user.get("checkers_wins", 0) + 1
+                user["checkers_wins"] += 1
                 user_found = True
                 break
         
@@ -67,11 +69,11 @@ class Checkers:
             users.append(new_user)
 
         # Update the data dictionary
-        data["users"] = users
+        self.user_data = users
 
         # Save the updated data to the file
         with open("user_data.json", "w") as file:
-            json.dump(data, file, indent=4)
+            json.dump(self.user_data, file, indent=4)
 
         return
 
@@ -95,11 +97,11 @@ class Checkers:
     # Prompt user to input player names via entry boxes 
     def set_player_names(self):
         # Entry boxes
-        self.player1_entry = tk.Entry(self.root)
+        # self.player1_entry = tk.Entry(self.root)
         self.player2_entry = tk.Entry(self.root)
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
-        self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1:", fill="black", font=('Helvetica 15 bold'))
-        self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
+        # self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1:", fill="black", font=('Helvetica 15 bold'))
+        # self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
         self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2:", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 2 + 30, window=self.player2_entry)
 
@@ -110,12 +112,12 @@ class Checkers:
     # Save player names, clear initial screen, and draw board to start game
     def start_game(self):
         # Get player names from the entries
-        self.player1 = self.player1_entry.get()
+        # self.player1 = self.player1_entry.get()
         self.player2 = self.player2_entry.get()
 
         # Clear the canvas and remove entry fields and submit button
         self.canvas.delete("all")
-        self.player1_entry.destroy()
+        # self.player1_entry.destroy()
         self.player2_entry.destroy()
         self.submit_btn.destroy()
 
@@ -125,13 +127,13 @@ class Checkers:
     def init_board(self):
         board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
         
-        # # Place black pieces (player 1)
+        # Place black pieces (player 1)
         for row in range(GRID_SIZE - 3, GRID_SIZE):
             for col in range(GRID_SIZE):
                 if (row + col) % 2 == 1:
                     board[row][col] = P1
 
-        # # Place white pieces (player 2)
+        # Place white pieces (player 2)
         for row in range(3):
             for col in range(GRID_SIZE):
                 if (row + col) % 2 == 1:
@@ -144,6 +146,15 @@ class Checkers:
         # test double jump
         # board[4][3] = P2
         # board[2][5] = P2
+
+        # test Player 1 Victory
+        # board[1][1] = P2
+        # board[2][2] = P1
+
+        # test Player 2 Victory
+        # board[1][1] = P2
+        # board[3][3] = P1
+
         return board
     
     # Draw a single piece 

@@ -12,16 +12,18 @@ import tkinter as tk
 
 class Hangman:
 
-    def __init__(self, main_tkinter, user_data):
+    def __init__(self, main_tkinter, user_data, username):
         global canvas, attempts_label, letters_guessed_label, letter_label, letter_entry, guess_button, word_label
         global word_display, message_label, restart_button, exit_button
 
         self.user_data = user_data  # Pass user_data to Hangman
+        self.username = username # Pass the record just for the current user
 
         self.window = main_tkinter
 
         # Initialize variables
         self.word_to_guess = self.choose_random_word()
+        print(f"For testing: the hangman word is {self.word_to_guess}")
         self.guessed_letters = []
         self.attempts = 6
         self.current_attempt = 0
@@ -59,14 +61,21 @@ class Hangman:
         self.update_hangman()
 
     #function to get hangman wins
-    def hangman_wins(self):
-        return self.user_data.get("hangman_wins", 0)
+    # def hangman_wins(self):
+    #     return self.user_data.get("hangman_wins", 0)
 
     #function to update hangman wins in the json file
     def update_hangman_wins(self):
-        self.user_data["hangman_wins"] = self.hangman_wins() + 1
+        users = self.user_data.get("users", [])
+
+        for user in users:
+            if user["username"] == self.username["username"]:
+                user["hangman_wins"] += 1
+                break
+        
+        self.user_data["users"] = users
         with open("user_data.json", "w") as file:
-            json.dump({"users": [self.user_data]}, file)
+            json.dump(self.user_data, file, indent=4)
 
     # Function to get a random word from wordlist
     def choose_random_word(self):
