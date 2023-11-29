@@ -128,16 +128,16 @@ class Checkers:
         board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
         
         # Place black pieces (player 1)
-        for row in range(GRID_SIZE - 3, GRID_SIZE):
-            for col in range(GRID_SIZE):
-                if (row + col) % 2 == 1:
-                    board[row][col] = P1
+        # for row in range(GRID_SIZE - 3, GRID_SIZE):
+        #     for col in range(GRID_SIZE):
+        #         if (row + col) % 2 == 1:
+        #             board[row][col] = P1
 
-        # Place white pieces (player 2)
-        for row in range(3):
-            for col in range(GRID_SIZE):
-                if (row + col) % 2 == 1:
-                    board[row][col] = P2
+        # # Place white pieces (player 2)
+        # for row in range(3):
+        #     for col in range(GRID_SIZE):
+        #         if (row + col) % 2 == 1:
+        #             board[row][col] = P2
 
         # test king functionality (comment the above loops to clear other pieces)
         # board[6][1] = P2
@@ -152,8 +152,8 @@ class Checkers:
         # board[2][2] = P1
 
         # test Player 2 Victory
-        # board[1][1] = P2
-        # board[3][3] = P1
+        board[1][1] = P2
+        board[3][3] = P1
 
         return board
     

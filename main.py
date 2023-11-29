@@ -95,7 +95,7 @@ background_label = tk.Label(root, image=background_image)
 background_label.place(relwidth=1, relheight=1)
 
 checkers_canvas_widget = tk.Canvas(root, width=400, height=400)  # Define checkers_canvas_widget here
-checkers_game = Checkers(root, checkers_canvas_widget)
+checkers_game = Checkers(root, checkers_canvas_widget, user_data, name)
 
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
 snake_game = Snake(root, snake_canvas_widget, user_data, name)
@@ -138,6 +138,9 @@ username_display_label.place(x=50, y=400)
 # Button to show scoreboard
 scoreboard_button = tk.Button(root, text="Show Scoreboard", command=show_scoreboard, font=("Arial", 12), bg="#008CBA", fg="white")
 scoreboard_button.place(relx=.95, rely=.95, anchor=tk.SE)
+
+# Used to reset the snake game, we need to
+restart_button = tk.Button(root, text="Restart Game", command=reset_game).place(x=850,y=800)
 
 # Termination button
 terminate_button = tk.Button(root, text="Quit", command=terminate_application, font=("Arial", 10), bg="red", fg="white")
