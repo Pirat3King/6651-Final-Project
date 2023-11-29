@@ -22,7 +22,7 @@
             "username": "Someone",
             "hangman_wins": 0,
             "snake_score": 0,
-            "checkers_wins": 1
+            "checkers_wins": 0
         }
     ]
 }
