@@ -1,7 +1,7 @@
 """
-Author: Kiren Chaudry
+Author: Kiren Chaudry and Muhammad Hammad
 Date Authored: Oct. 17, 2023
-Last Updated: Nov. 18, 2023
+Last Updated: Nov. 26, 2023
 Class: CSCI 6651-01
 Goal: This is a program to run a simple game of hangman
 """
@@ -14,7 +14,7 @@ class Hangman:
 
     def __init__(self, main_tkinter, user_data):
         global canvas, attempts_label, letters_guessed_label, letter_label, letter_entry, guess_button, word_label
-        global word_display, message_label, restart_button, exit_button
+        global word_display, message_label, restart_button #exit_button
 
         self.user_data = user_data  # Pass user_data to Hangman
 
@@ -35,15 +35,15 @@ class Hangman:
         canvas.create_line(100, 10, 100, 30)
 
         # Create and pack the widgets
-        attempts_label = tk.Label(self.window, text=f"Attempts left: {self.attempts - self.current_attempt}")
+        attempts_label = tk.Label(self.window, text=f"Attempts left: {self.attempts - self.current_attempt}", font=("Arial", 14), bg="#BDC3C7")
 
-        letters_guessed_label = tk.Label(self.window, text="Letters Guessed: ")
+        letters_guessed_label = tk.Label(self.window, text="Letters Guessed: ", font=("Arial", 14), bg="#BDC3C7")
 
-        letter_label = tk.Label(self.window, text="Guess a letter:")
+        letter_label = tk.Label(self.window, text="Guess a letter:", font=("Arial", 14), bg="#BDC3C7")
 
         letter_entry = tk.Entry(self.window)
 
-        guess_button = tk.Button(self.window, text="Guess", command=self.guess_letter)
+        guess_button = tk.Button(self.window, text="Guess", font=("Arial", 12), bg="#5499C7", fg="white" , command=self.guess_letter)
 
         word_display = tk.StringVar()
         word_display.set(" ".join(["_" for _ in self.word_to_guess]))
@@ -51,9 +51,9 @@ class Hangman:
 
         message_label = tk.Label(self.window, text="")
 
-        restart_button = tk.Button(self.window, text="Restart", command=lambda: self.play_again(user_data))
+        restart_button = tk.Button(self.window, text="Restart", font=("Arial", 12), bg="#5499C7", fg="white", command=lambda: self.play_again(user_data))
 
-        exit_button = tk.Button(self.window, text="Exit", command=self.exit_game)
+        # exit_button = tk.Button(self.window, text="Exit", font=("Arial", 12), bg="#5499C7", fg="white", command=self.exit_game)
 
         # Start the game
         self.update_hangman()
@@ -129,8 +129,8 @@ class Hangman:
         pack_hangman_elements()
 
     # Function to exit the game
-    def exit_game(self):
-        self.window.destroy()
+    # def exit_game(self):
+    #     self.window.destroy()
 
     # Function to reset the game state
     def reset_game(self):
@@ -161,8 +161,8 @@ def pack_hangman_elements():
     guess_button.pack()
     word_label.pack()
     message_label.pack()
-    restart_button.place(relx=0.48, rely=0.56, anchor=tk.CENTER)
-    exit_button.place(relx=0.52, rely=0.56, anchor=tk.CENTER)
+    restart_button.place(relx=0.50, rely=0.56, anchor=tk.CENTER)
+    # exit_button.place(relx=0.52, rely=0.56, anchor=tk.CENTER)
 
 def unpack_hangman_elements():
     canvas.pack_forget()
@@ -174,4 +174,4 @@ def unpack_hangman_elements():
     word_label.pack_forget()
     message_label.pack_forget()
     restart_button.place_forget()
-    exit_button.place_forget()
+    # exit_button.place_forget()
