@@ -3,11 +3,14 @@ File: checkers.py
 Authors: William Turner
 Brief: Implementation of checkers using tkinter GUI
 Date: 2023/10/14
+Last Updated: Nov. 29, 2023 by Trevor
 
 From Trevor: I changed the way the api is accessed in the program,
 the json is passed in from main like the other games. 
 I also did away with the player 1 entry. To me it makes more sence to just set 
 player 1 to the current user when the application is launched.
+
+From Trevor (Nov 29): Reset button in main resets the checkers game but there are still some issues 
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -37,7 +40,6 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 class Checkers:
     def __init__(self, root_window, the_canvas_window, user_data, username):
         self.root = root_window
-        self.root.title("Checkers")
 
         # Initialize canvas
         self.canvas = the_canvas_window
@@ -69,7 +71,7 @@ class Checkers:
             users.append(new_user)
 
         # Update the data dictionary
-        self.user_data = users
+        self.user_data["users"] = users
 
         # Save the updated data to the file
         with open("user_data.json", "w") as file:
@@ -128,16 +130,16 @@ class Checkers:
         board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
         
         # Place black pieces (player 1)
-        # for row in range(GRID_SIZE - 3, GRID_SIZE):
-        #     for col in range(GRID_SIZE):
-        #         if (row + col) % 2 == 1:
-        #             board[row][col] = P1
+        for row in range(GRID_SIZE - 3, GRID_SIZE):
+            for col in range(GRID_SIZE):
+                if (row + col) % 2 == 1:
+                    board[row][col] = P1
 
-        # # Place white pieces (player 2)
-        # for row in range(3):
-        #     for col in range(GRID_SIZE):
-        #         if (row + col) % 2 == 1:
-        #             board[row][col] = P2
+        # Place white pieces (player 2)
+        for row in range(3):
+            for col in range(GRID_SIZE):
+                if (row + col) % 2 == 1:
+                    board[row][col] = P2
 
         # test king functionality (comment the above loops to clear other pieces)
         # board[6][1] = P2
@@ -152,8 +154,8 @@ class Checkers:
         # board[2][2] = P1
 
         # test Player 2 Victory
-        board[1][1] = P2
-        board[3][3] = P1
+        # board[1][1] = P2
+        # board[3][3] = P1
 
         return board
     
@@ -427,9 +429,12 @@ class Checkers:
     #     else:
     #         return "No winner"
 
-    def reset_game(self):
+    def restart_checkers_game(self):
+        # This still needs tweaking, players are still swapped upon restart
+        # Also this doesn't properly reset if your testing the presets for P1 and P2 Victories
         self.canvas.delete("all")
-        self.__init__(self.root, self.canvas)
+        self.board = self.init_board()
+        self.draw_board()
 
     # # Run the game
     # def run(self):

@@ -2,10 +2,12 @@
 """
 Author: Muhammad Hammad
 Date Authored: Nov. 22, 2023
-Last Updated: Nov. 26, 2023
+Last Updated: Nov. 29, 2023 by Trevor
 Class: CSCI 6651-01
 Goal: The code aims to create a Python Tkinter-based graphical interface for playing Hangman, Snake, and Checkers games, with user data management, scoreboard display, and game interactions.
 Sources: AI: Blackbox, chatGPT 
+Updates from Trevor: Reset button was changed to aesthetically similar to the quit button and placed beneath it
+                     Reset button works for all 3 games but see hangman and checkers notes
 """
 
 import tkinter as tk
@@ -118,11 +120,12 @@ def play_checkers():
 
 def reset_game():
     if radio.get() == 1:
+        # The reset button for hangman is a seperate button in the hangman file itself
         pass
     elif radio.get() == 2:
-        snake_game.restart_game()
+        snake_game.restart_snake_game()
     elif radio.get() == 3:
-        checkers_game.reset_game()
+        checkers_game.restart_checkers_game()
 
 radio = tk.IntVar()
 
@@ -139,12 +142,13 @@ username_display_label.place(x=50, y=400)
 scoreboard_button = tk.Button(root, text="Show Scoreboard", command=show_scoreboard, font=("Arial", 12), bg="#008CBA", fg="white")
 scoreboard_button.place(relx=.95, rely=.95, anchor=tk.SE)
 
-# Used to reset the snake game, we need to
-restart_button = tk.Button(root, text="Restart Game", command=reset_game).place(x=850,y=800)
-
 # Termination button
 terminate_button = tk.Button(root, text="Quit", command=terminate_application, font=("Arial", 10), bg="red", fg="white")
 terminate_button.place(relx=.95, rely=.05, anchor=tk.NE)
+
+# Reset Button
+reset_button = tk.Button(root, text="Reset", command=reset_game, font=("Arial", 10), bg="orange", fg="white")
+reset_button.place(relx=.95, rely=.10, anchor=tk.NE)
 
 # Hangman must be last otherwise it bombs out
 Hangman(root, user_data, name)

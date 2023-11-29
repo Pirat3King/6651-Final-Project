@@ -1,9 +1,14 @@
 """
 Author: Kiren Chaudry and Muhammad Hammad
 Date Authored: Oct. 17, 2023
-Last Updated: Nov. 26, 2023
+Last Updated: Nov. 29, 2023 by Trevor
 Class: CSCI 6651-01
 Goal: This is a program to run a simple game of hangman
+Updates from Trevor: update_hangman() now includes the gallow itself, reseting the game now resets the hangman drawing properly
+                     the reset_button places on top of the reset button from main with the same appearance to appear as one button
+                        but this is still it's own button 
+                     guesses are now limited to one char
+                     also made the bg color for some of the features a different shade of grey so it doesn't blend in with the background
 """
 
 import random
@@ -23,18 +28,12 @@ class Hangman:
 
         # Initialize variables
         self.word_to_guess = self.choose_random_word()
-        print(f"For testing: the hangman word is {self.word_to_guess}")
         self.guessed_letters = []
         self.attempts = 6
         self.current_attempt = 0
 
         # Create a canvas to draw the hangman figure
-        canvas = tk.Canvas(self.window, width=200, height=200)
-
-        canvas.create_line(10, 180, 90, 180)
-        canvas.create_line(50, 180, 50, 10)
-        canvas.create_line(50, 10, 100, 10)
-        canvas.create_line(100, 10, 100, 30)
+        canvas = tk.Canvas(self.window, width=200, height=200, bg="#d4cbd1")
 
         # Create and pack the widgets
         attempts_label = tk.Label(self.window, text=f"Attempts left: {self.attempts - self.current_attempt}", font=("Arial", 14), bg="#BDC3C7")
@@ -43,19 +42,22 @@ class Hangman:
 
         letter_label = tk.Label(self.window, text="Guess a letter:", font=("Arial", 14), bg="#BDC3C7")
 
-        letter_entry = tk.Entry(self.window)
+        self.entry_value = tk.StringVar()
+        # Validation function to allow only one character
+        self.validate_cmd = self.window.register(self.validate_entry)
+        letter_entry = tk.Entry(self.window, textvariable=self.entry_value, validate="key", validatecommand=(self.validate_cmd, '%S', self.entry_value), bg="#d4cbd1")
+        # Trace the variable to limit the length of the entry
+        self.entry_value.trace_add('write', self.on_entry_change)
 
         guess_button = tk.Button(self.window, text="Guess", font=("Arial", 12), bg="#5499C7", fg="white" , command=self.guess_letter)
 
         word_display = tk.StringVar()
         word_display.set(" ".join(["_" for _ in self.word_to_guess]))
-        word_label = tk.Label(self.window, textvariable=word_display)
+        word_label = tk.Label(self.window, textvariable=word_display, bg="#d4cbd1")
 
         message_label = tk.Label(self.window, text="")
 
-        restart_button = tk.Button(self.window, text="Restart", font=("Arial", 12), bg="#5499C7", fg="white", command=lambda: self.play_again(user_data))
-
-        # exit_button = tk.Button(self.window, text="Exit", font=("Arial", 12), bg="#5499C7", fg="white", command=self.exit_game)
+        restart_button = tk.Button(self.window, text="Reset", font=("Arial", 10), bg="orange", fg="white", command=lambda: self.play_again(user_data))
 
         # Start the game
         self.update_hangman()
@@ -63,6 +65,18 @@ class Hangman:
     #function to get hangman wins
     # def hangman_wins(self):
     #     return self.user_data.get("hangman_wins", 0)
+
+    '''
+    Validate_entry() and on_entry_changes() are both used to ensure only one char can be entered
+    '''
+
+    # Check if the entered character is a single character
+    def validate_entry(self, char, entry_value):
+        return len(char) == 1
+
+    # Limit the entry length to 1 character
+    def on_entry_change(self, *args):
+        self.entry_value.set(self.entry_value.get()[:1])
 
     #function to update hangman wins in the json file
     def update_hangman_wins(self):
@@ -81,25 +95,32 @@ class Hangman:
     def choose_random_word(self):
         with open('wordlist.txt', 'r') as file:
             words = file.read().splitlines()
-        return random.choice(words)
+        selected_word = random.choice(words)
+        print(f"The selected word is: {selected_word}")
+        return selected_word
 
     # Function to update the hangman figure
     def update_hangman(self):
-        if self.current_attempt == 1:    #head
-            canvas.create_oval(85, 30, 115, 60)
+        if self.current_attempt == 0:  # gallow
+            canvas.create_line(10, 180, 90, 180, tags="hangmang_lines")
+            canvas.create_line(50, 180, 50, 10, tags="hangmang_lines")
+            canvas.create_line(50, 10, 100, 10, tags="hangmang_lines")
+            canvas.create_line(100, 10, 100, 30, tags="hangmang_lines")
+        elif self.current_attempt == 1:    #head
+            canvas.create_oval(85, 30, 115, 60, tags="hangmang_lines")
         elif self.current_attempt == 2:  #body
-            canvas.create_line(100, 60, 100, 120)
+            canvas.create_line(100, 60, 100, 120, tags="hangmang_lines")
         elif self.current_attempt == 3:  # left arm
-            canvas.create_line(100, 80, 80, 60)
+            canvas.create_line(100, 80, 80, 60, tags="hangmang_lines")
         elif self.current_attempt == 4:  # right arm
-            canvas.create_line(100, 80, 120, 60)
+            canvas.create_line(100, 80, 120, 60, tags="hangmang_lines")
         elif self.current_attempt == 5:  # left leg
-            canvas.create_line(100, 120, 80, 140)
+            canvas.create_line(100, 120, 80, 140, tags="hangmang_lines")
         elif self.current_attempt == 6:  # right leg
-            canvas.create_line(100, 120, 120, 140)
+            canvas.create_line(100, 120, 120, 140, tags="hangmang_lines")
             # X's inside the circle for dead eyes
-            canvas.create_text(95, 40, text="x")
-            canvas.create_text(105, 40, text="x")
+            canvas.create_text(95, 40, text="x", tags="hangmang_lines")
+            canvas.create_text(105, 40, text="x", tags="hangmang_lines")
 
     # Function to check if the game is won
     def is_game_won(self):
@@ -134,7 +155,7 @@ class Hangman:
     def play_again(self, user_data):
         self.reset_game()
         unpack_hangman_elements()
-        hangman_game = Hangman(self.window, user_data)
+        # hangman_game = Hangman(self.window, user_data)
         pack_hangman_elements()
 
     # Function to exit the game
@@ -143,6 +164,7 @@ class Hangman:
 
     # Function to reset the game state
     def reset_game(self):
+        canvas.delete("hangmang_lines")
         self.word_to_guess = self.choose_random_word()
         self.guessed_letters = []
         self.attempts = 6
@@ -170,8 +192,7 @@ def pack_hangman_elements():
     guess_button.pack()
     word_label.pack()
     message_label.pack()
-    restart_button.place(relx=0.50, rely=0.56, anchor=tk.CENTER)
-    # exit_button.place(relx=0.52, rely=0.56, anchor=tk.CENTER)
+    restart_button.place(relx=0.95, rely=0.10, anchor=tk.NE)
 
 def unpack_hangman_elements():
     canvas.pack_forget()
@@ -183,4 +204,3 @@ def unpack_hangman_elements():
     word_label.pack_forget()
     message_label.pack_forget()
     restart_button.place_forget()
-    # exit_button.place_forget()
