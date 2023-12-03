@@ -1,14 +1,20 @@
 """
 Author: Kiren Chaudry and Muhammad Hammad
 Date Authored: Oct. 17, 2023
-Last Updated: Nov. 29, 2023 by Trevor
+Last Updated: Dec. 03, 2023 by Kiren
 Class: CSCI 6651-01
 Goal: This is a program to run a simple game of hangman
 Updates from Trevor: update_hangman() now includes the gallow itself, reseting the game now resets the hangman drawing properly
-                     the reset_button places on top of the reset button from main with the same appearance to appear as one button
-                        but this is still it's own button 
-                     guesses are now limited to one char
-                     also made the bg color for some of the features a different shade of grey so it doesn't blend in with the background
+    the reset_button places on top of the reset button from main with the same appearance to appear as one button
+    but this is still its own button
+    guesses are now limited to one char
+    also made the bg color for some of the features a different shade of grey so it doesn't blend in with the background
+Updates from Kiren 12/3: check that user entered alphabetic character
+Check and do not allow repeat guesses
+Don't allow negative attempts
+Allow user to click 'Enter' to guess
+
+OpenAI's ChatGPT was utilized to assist in the creation of this program
 """
 
 import random
@@ -19,7 +25,7 @@ class Hangman:
 
     def __init__(self, main_tkinter, user_data, username):
         global canvas, attempts_label, letters_guessed_label, letter_label, letter_entry, guess_button, word_label
-        global word_display, message_label, restart_button #exit_button
+        global word_display, message_label, max_attempts_label, restart_button #exit_button
 
         self.user_data = user_data  # Pass user_data to Hangman
         self.username = username # Pass the record just for the current user
@@ -31,6 +37,7 @@ class Hangman:
         self.guessed_letters = []
         self.attempts = 6
         self.current_attempt = 0
+        self.max_attempts_message_displayed = False  #tracks if max attempts message is displayed
 
         # Create a canvas to draw the hangman figure
         canvas = tk.Canvas(self.window, width=200, height=200, bg="#d4cbd1")
@@ -50,12 +57,15 @@ class Hangman:
         self.entry_value.trace_add('write', self.on_entry_change)
 
         guess_button = tk.Button(self.window, text="Guess", font=("Arial", 12), bg="#5499C7", fg="white" , command=self.guess_letter)
+        # Set up binding for the Enter key
+        letter_entry.bind("<Return>", self.guess_letter)
 
         word_display = tk.StringVar()
         word_display.set(" ".join(["_" for _ in self.word_to_guess]))
         word_label = tk.Label(self.window, textvariable=word_display, bg="#d4cbd1")
 
         message_label = tk.Label(self.window, text="")
+        max_attempts_label = tk.Label(self.window, text="")
 
         restart_button = tk.Button(self.window, text="Reset", font=("Arial", 10), bg="orange", fg="white", command=lambda: self.play_again(user_data))
 
@@ -93,9 +103,10 @@ class Hangman:
 
     # Function to get a random word from wordlist
     def choose_random_word(self):
-        with open('wordlist.txt', 'r') as file:
-            words = file.read().splitlines()
-        selected_word = random.choice(words)
+        #with open('wordlist.txt', 'r') as file:
+        #    words = file.read().splitlines()
+        #selected_word = random.choice(words)
+        selected_word = 'lamp'
         print(f"The selected word is: {selected_word}")
         return selected_word
 
@@ -127,8 +138,30 @@ class Hangman:
         return all(letter in self.guessed_letters for letter in self.word_to_guess)
 
     # Function to handle letter guesses
-    def guess_letter(self):
+    def guess_letter(self, event=None):
+        if self.current_attempt >= self.attempts:
+            # No more attempts left, don't process further guesses
+            # Add a new label for the "max attempts reached" message
+            max_attempts_label.config(text="Maximum attempts reached. Game over!", font=("Arial", 14), bg="#BDC3C7")
+            self.max_attempts_message_displayed = True  # Set the flag to indicate the message has been displayed
+            return
+        elif self.is_game_won():
+            max_attempts_label.config(text="You already won. Game over!", font=("Arial", 14), bg="#BDC3C7")
+            self.max_attempts_message_displayed = True  # Set the flag to indicate the message has been displayed
+            return
+
         letter = letter_entry.get().lower()
+
+        # check that user entered an alphabetic character
+        if not letter.isalpha():  # if user did not enter a letter
+            message_label.config(text="Please enter a valid alphabetical character.")
+            return
+
+        # check if user already guessed the letter
+        if letter in self.guessed_letters:  # if user already guessed the letter
+            message_label.config(text="You already guessed this letter. Try a different one.")
+            return
+
         self.guessed_letters.append(letter)
         letter_entry.delete(0, tk.END)
 
@@ -139,7 +172,7 @@ class Hangman:
         word_display.set(" ".join([char if char in self.guessed_letters else "_" for char in self.word_to_guess]))
 
         # Update attempts label
-        attempts_left = self.attempts - self.current_attempt
+        attempts_left = max(0, self.attempts - self.current_attempt)  # make sure user cannot have negative attempts
         attempts_label.config(text=f"Attempts left: {attempts_left}")
 
         # Update letters guessed label
@@ -148,8 +181,11 @@ class Hangman:
         if self.is_game_won():
             message_label.config(text="Congratulations! You've won!")
             self.update_hangman_wins()  # Call the method to update wins
-        elif self.current_attempt == self.attempts:
+        elif self.current_attempt == self.attempts and not self.max_attempts_message_displayed:
             message_label.config(text=f"Game over! The word was '{self.word_to_guess}'")
+            self.max_attempts_message_displayed = True
+        else:
+            message_label.config(text="")  # Clear the message label for the next guess
 
     # Function to play again
     def play_again(self, user_data):
@@ -174,6 +210,7 @@ class Hangman:
         attempts_label.config(text=f"Attempts left: {self.attempts}")
         letters_guessed_label.config(text="Letters Guessed: ")
         message_label.config(text="")
+        max_attempts_label.config(text="")
 
     # Run the main loop
     def run(self):
@@ -192,6 +229,7 @@ def pack_hangman_elements():
     guess_button.pack()
     word_label.pack()
     message_label.pack()
+    max_attempts_label.pack()
     restart_button.place(relx=0.95, rely=0.10, anchor=tk.NE)
 
 def unpack_hangman_elements():
@@ -203,4 +241,5 @@ def unpack_hangman_elements():
     guess_button.pack_forget()
     word_label.pack_forget()
     message_label.pack_forget()
+    max_attempts_label.pack_forget()
     restart_button.place_forget()

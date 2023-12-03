@@ -8,6 +8,7 @@ OpenAI's ChatGPT was utilized to assist in the creation of this program
 
 Updates from Trevor: Snake now has a proper start button and game over prompt
 """
+#TODO update snake score after game lost, not just on reset
 
 import tkinter as tk
 import random
