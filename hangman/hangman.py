@@ -107,7 +107,7 @@ class Hangman:
         #    words = file.read().splitlines()
         #selected_word = random.choice(words)
         selected_word = 'lamp'
-        print(f"The selected word is: {selected_word}")
+        # print(f"The selected word is: {selected_word}")
         return selected_word
 
     # Function to update the hangman figure
