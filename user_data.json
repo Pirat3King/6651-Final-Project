@@ -1,0 +1,10 @@
+{
+    "users": [
+        {
+            "username": "will",
+            "hangman_wins": 0,
+            "snake_score": 3,
+            "checkers_wins": 1
+        }
+    ]
+}

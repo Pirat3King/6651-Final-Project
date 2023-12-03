@@ -11,6 +11,7 @@ I also did away with the player 1 entry. To me it makes more sence to just set
 player 1 to the current user when the application is launched.
 
 From Trevor (Nov 29): Reset button in main resets the checkers game but there are still some issues 
+    Will - Fixed Dec 03
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -433,8 +434,8 @@ class Checkers:
         # This still needs tweaking, players are still swapped upon restart
         # Also this doesn't properly reset if your testing the presets for P1 and P2 Victories
         self.canvas.delete("all")
-        self.board = self.init_board()
-        self.draw_board()
+        self.init_game()
+        self.set_player_names()
 
     # # Run the game
     # def run(self):
