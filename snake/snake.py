@@ -55,6 +55,10 @@ class Snake:
         main_tkinter.bind("<Down>", self.on_key_press)
         main_tkinter.bind("<Left>", self.on_key_press)
         main_tkinter.bind("<Right>", self.on_key_press)
+        main_tkinter.bind("<w>", self.on_key_press)
+        main_tkinter.bind("<s>", self.on_key_press)
+        main_tkinter.bind("<a>", self.on_key_press)
+        main_tkinter.bind("<d>", self.on_key_press)
 
         self.user_data = user_data
         self.username = username
@@ -124,13 +128,13 @@ class Snake:
         )
 
     def on_key_press(self, event):
-        if event.keysym == "Up" and self.direction != (0, 1):
+        if event.keysym == "Up" or event.keysym == "w" and self.direction != (0, 1):
             self.direction = (0, -1)
-        elif event.keysym == "Down" and self.direction != (0, -1):
+        elif event.keysym == "Down" or event.keysym == "s" and self.direction != (0, -1):
             self.direction = (0, 1)
-        elif event.keysym == "Left" and self.direction != (1, 0):
+        elif event.keysym == "Left" or event.keysym == "a" and self.direction != (1, 0):
             self.direction = (-1, 0)
-        elif event.keysym == "Right" and self.direction != (-1, 0):
+        elif event.keysym == "Right" or event.keysym == "d" and self.direction != (-1, 0):
             self.direction = (1, 0)
 
     def restart_snake_game(self):
