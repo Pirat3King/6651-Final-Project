@@ -8,7 +8,6 @@ OpenAI's ChatGPT was utilized to assist in the creation of this program
 
 Updates from Trevor: Snake now has a proper start button and game over prompt
 """
-#TODO update snake score after game lost, not just on reset
 
 import tkinter as tk
 import random
@@ -82,6 +81,7 @@ class Snake:
                 self.game_over = True
                 self.update_snake_score()
                 self.game_over_label.place(x=130, y=200)
+                self.update_snake_score()
             else:
                 self.snake.insert(0, new_head)
 
