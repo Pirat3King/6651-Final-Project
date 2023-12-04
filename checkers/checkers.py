@@ -96,7 +96,7 @@ class Checkers:
         # Entry boxes
         self.player1_entry = tk.Entry(self.root)
         self.player2_entry = tk.Entry(self.root)
-        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
+        self.canvas.create_image(WIDTH // 2, HEIGHT // 2, anchor="center", image=self.win_box) # grey box
         self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1 (Black):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
         self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2 (White):", fill="black", font=('Helvetica 15 bold'))
@@ -136,7 +136,10 @@ class Checkers:
                 if (row + col) % 2 == 1:
                     board[row][col] = P2
 
-        # test king functionality (comment the above loops to clear other pieces)
+        ##### Testing / Debugging #####
+        ##### Comment the above loops to clear pieces #####
+        
+        # test king functionality 
         # board[6][1] = P2
         # board[1][4] = P1 
 
@@ -221,8 +224,8 @@ class Checkers:
                     else: 
                         self.jump_in_progress = False
                         self.selected_piece = None
-                        if self.check_win() == False: #Check for win condition and change player turn
-                            self.current_player = P2 if self.current_player == P1 else P1
+                        if self.check_win() == False:
+                            self.current_player = P2 if self.current_player == P1 else P1 # Change player turn if no win
                         else: # Exit if win
                             self.game_over = True
                             self.update_checkers_score()
