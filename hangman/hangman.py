@@ -40,7 +40,7 @@ class Hangman:
         self.max_attempts_message_displayed = False  #tracks if max attempts message is displayed
 
         # Create a canvas to draw the hangman figure
-        canvas = tk.Canvas(self.window, width=200, height=200, bg="#d4cbd1")
+        canvas = tk.Canvas(self.window, width=400, height=400, bg="#d4cbd1")
 
         # Create and pack the widgets
         attempts_label = tk.Label(self.window, text=f"Attempts left: {self.attempts - self.current_attempt}", font=("Arial", 14), bg="#BDC3C7")
@@ -222,15 +222,16 @@ class Hangman:
 
 def pack_hangman_elements():
     canvas.pack()
-    attempts_label.pack()
-    letters_guessed_label.pack()
-    letter_label.pack()
-    letter_entry.pack()
-    guess_button.pack()
-    word_label.pack()
-    message_label.pack()
-    max_attempts_label.pack()
+    attempts_label.place(relx=0.36, rely=0.3)
+    letters_guessed_label.place(relx=0.36, rely=0.35)
+    letter_label.place(relx=0.36, rely=0.40)
+    letter_entry.place(relx=0.47, rely=0.41)
+    guess_button.place(relx=0.58, rely=0.40)
+    word_label.place(relx=0.36, rely=0.45)
+    message_label.place(relx=0.36, rely=0.50)
+    max_attempts_label.place(relx=0.36, rely=0.55)
     restart_button.place(relx=0.95, rely=0.10, anchor=tk.NE)
+
 
 def unpack_hangman_elements():
     canvas.pack_forget()

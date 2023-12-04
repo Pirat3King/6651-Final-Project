@@ -102,6 +102,7 @@ checkers_game = Checkers(root, checkers_canvas_widget, user_data, name)
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
 snake_game = Snake(root, snake_canvas_widget, user_data, name)
 
+
 # Each function will start the selected game and close all other games
 def play_hangman():
     pack_hangman_elements()
@@ -130,9 +131,9 @@ def reset_game():
 radio = tk.IntVar()
 
 # Radio buttons to play each game
-game1_radio = tk.Button(root, text="Play Hangman", command=play_hangman, font=("Arial", 12), bg="red", fg="white").place(x=80, y=450)
-game2_radio = tk.Button(root, text="Play Snake", command=play_snake, font=("Arial", 12), bg="#660000", fg="white").place(x=80, y=500)
-game3_radio = tk.Button(root, text="Play Checkers", command=play_checkers, font=("Arial", 12), bg="#F39C12", fg="white").place(x=80, y=550)
+game1_radio = tk.Button(root, text="Play Hangman", command=play_hangman, font=("Arial", 12), bg="red", fg="black", activeforeground="white").place(x=80, y=450)
+game2_radio = tk.Button(root, text="Play Snake", command=play_snake, font=("Arial", 12), bg="#660000", fg="black", activeforeground="white").place(x=80, y=500)
+game3_radio = tk.Button(root, text="Play Checkers", command=play_checkers, font=("Arial", 12), bg="#F39C12", fg="black", activeforeground="white").place(x=80, y=550)
 
 # Create and pack the username display and attempts widgets
 username_display_label = tk.Label(root, text=f"Username: {username}", font=("Arial", 14), bg="#BDC3C7")
