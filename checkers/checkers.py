@@ -420,11 +420,8 @@ class Checkers:
         self.init_game()
         self.set_player_names()
 
-    # # Run the game
+# Uncomment below to run game outside of main application
     # def run(self):
     #     self.root.mainloop()
-
-# Uncomment to run outside of main application
 # checker_game = Checkers()
 # checker_game.run()
-# print(f"Winner: {checker_game.get_winner()}")
