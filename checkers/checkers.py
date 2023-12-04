@@ -9,9 +9,6 @@ From Trevor: I changed the way the api is accessed in the program,
 the json is passed in from main like the other games. 
 I also did away with the player 1 entry. To me it makes more sence to just set 
 player 1 to the current user when the application is launched.
-
-From Trevor (Nov 29): Reset button in main resets the checkers game but there are still some issues 
-    Will - Fixed Dec 03
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -49,14 +46,12 @@ class Checkers:
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
         self.user_data = user_data
-        # self.username = username
-        # self.player1 = username["username"]
 
         self.init_game()
         self.set_player_names()
 
+    # Update the score for the winner in the json scoreboard file
     def update_checkers_score(self):
-
         users = self.user_data.get("users", [])
         user_found = False
 
@@ -406,32 +401,21 @@ class Checkers:
         self.win()
         return True      
     
+    # Set 'winner' and display endgame screen
     def win(self):
         self.winner = self.player1 if self.current_player == P1 else self.player2
 
         # Disable clicking on squares
         self.canvas.unbind("<Button-1>")
 
-        # Create exit button
-        # quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
-
         # Display win screen
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box)
         self.canvas.create_text(WIDTH/2, HEIGHT/5, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_img)
         self.canvas.create_text(WIDTH/2, HEIGHT/1.33, text=f"{self.winner} wins!", fill="black", font=('Helvetica 15 bold'))
-        # self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
     
-    # Returns the winner's name if it exists
-    # def get_winner(self):
-    #     if self.game_over:
-    #         return self.winner
-    #     else:
-    #         return "No winner"
-
+    # Restart the game
     def restart_checkers_game(self):
-        # This still needs tweaking, players are still swapped upon restart
-        # Also this doesn't properly reset if your testing the presets for P1 and P2 Victories
         self.canvas.delete("all")
         self.init_game()
         self.set_player_names()
