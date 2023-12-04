@@ -3,7 +3,10 @@ File: snake.py
 Authors: Trevor Ralston
 Brief: Implementation of snake using tkinter GUI
 Date: 2023/11/7
+Last Updated: Nov. 29, 2023 by Trevor
 OpenAI's ChatGPT was utilized to assist in the creation of this program
+
+Updates from Trevor: Snake now has a proper start button and game over prompt
 """
 
 import tkinter as tk
@@ -38,39 +41,34 @@ class Snake:
 
         # Create the score label
         self.score_label = tk.Label(self.canvas, text="Score: 0", fg="white", bg="black")
-        self.score_label.place(x=200, y=2)
+        self.score_label.place(x=180, y=2)
 
-        # Create the restart button
-        # This is in main, but it may be more efficient to implement in this file, commented out for now
-        # self.restart_button = tk.Button(main_tkinter, text="Restart", command=self.restart_game)
-        # self.restart_button.pack()
+        # Create the game over label
+        self.game_over_label = tk.Label(self.canvas, text="Game Over\nHit Reset to Play Again", fg="white", bg="red", width=20)
+
+        # Create Start Button, clicking will begin game
+        self.start_button = tk.Button(self.canvas, text="Start Game", fg="white", bg="blue", command=self.move_snake)
+        self.start_button.place(x=170, y=200)
 
         # Bind arrow key events, these are bound to the main tkinter window (root)
         main_tkinter.bind("<Up>", self.on_key_press)
         main_tkinter.bind("<Down>", self.on_key_press)
         main_tkinter.bind("<Left>", self.on_key_press)
         main_tkinter.bind("<Right>", self.on_key_press)
+        main_tkinter.bind("<w>", self.on_key_press)
+        main_tkinter.bind("<s>", self.on_key_press)
+        main_tkinter.bind("<a>", self.on_key_press)
+        main_tkinter.bind("<d>", self.on_key_press)
 
         self.user_data = user_data
         self.username = username
-
-        # Start the game
-        self.move_snake()
-
-    def restart_game(self):
-        self.snake = [(4, 5), (4, 4), (4, 3)]
-        self.direction = (0, 1)
-        self.generate_food()
-        self.score = 0
-        self.game_over = False
-        self.score_label.config(text="Score: 0")
-        self.move_snake()
 
     def generate_food(self):
         while self.food in self.snake:
             self.food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
 
     def move_snake(self):
+        self.start_button.place_forget()
         if not self.game_over:
             # Calculate the new head position
             head_x, head_y = self.snake[0]
@@ -85,6 +83,9 @@ class Snake:
                     or new_head in self.snake
             ):
                 self.game_over = True
+                self.update_snake_score()
+                self.game_over_label.place(x=130, y=200)
+                self.update_snake_score()
             else:
                 self.snake.insert(0, new_head)
 
@@ -127,17 +128,18 @@ class Snake:
         )
 
     def on_key_press(self, event):
-        if event.keysym == "Up" and self.direction != (0, 1):
+        if event.keysym == "Up" or event.keysym == "w" and self.direction != (0, 1):
             self.direction = (0, -1)
-        elif event.keysym == "Down" and self.direction != (0, -1):
+        elif event.keysym == "Down" or event.keysym == "s" and self.direction != (0, -1):
             self.direction = (0, 1)
-        elif event.keysym == "Left" and self.direction != (1, 0):
+        elif event.keysym == "Left" or event.keysym == "a" and self.direction != (1, 0):
             self.direction = (-1, 0)
-        elif event.keysym == "Right" and self.direction != (-1, 0):
+        elif event.keysym == "Right" or event.keysym == "d" and self.direction != (-1, 0):
             self.direction = (1, 0)
 
-    def restart_game(self):
-        self.update_snake_score()
+    def restart_snake_game(self):
+        # self.update_snake_score()
+        self.game_over_label.place_forget()
         self.snake = [(4, 5), (4, 4), (4, 3)]
         self.direction = (0, 1)
         self.generate_food()
@@ -151,17 +153,15 @@ class Snake:
 
     #function to update snake score in the json file
     def update_snake_score(self):
-        # if self.user_data["snake_score"]:
-        #     self.user_data["snake_score"] = self.score
-        #     with open("user_data.json", "w") as file:
-        #         json.dump({"users": [self.user_data]}, file, indent=4)
 
         users = self.user_data.get("users", [])
 
-        for user in users:
-            if user["username"] == self.username:
+        for user in users:         
+            if user["username"] == self.username["username"]:
                 if user["snake_score"] < self.score:
-                    self.user_data["snake_score"] = self.score
+                    # This doesn't update the api, make sure to access the information from user or username, not user_data
+                    # self.user_data["snake_score"] = self.score
+                    user["snake_score"] = self.score
                     break
 
         # Update the data dictionary

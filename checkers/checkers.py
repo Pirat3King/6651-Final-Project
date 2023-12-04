@@ -3,6 +3,15 @@ File: checkers.py
 Authors: William Turner
 Brief: Implementation of checkers using tkinter GUI
 Date: 2023/10/14
+Last Updated: Nov. 29, 2023 by Trevor
+
+From Trevor: I changed the way the api is accessed in the program,
+the json is passed in from main like the other games. 
+I also did away with the player 1 entry. To me it makes more sence to just set 
+player 1 to the current user when the application is launched.
+
+From Trevor (Nov 29): Reset button in main resets the checkers game but there are still some issues 
+    Will - Fixed Dec 03
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -30,10 +39,8 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self, root_window, the_canvas_window):
+    def __init__(self, root_window, the_canvas_window, user_data):
         self.root = root_window
-        self.root.title("Checkers")
-        # self.user_data = user_data
 
         # Initialize canvas
         self.canvas = the_canvas_window
@@ -41,23 +48,21 @@ class Checkers:
         # Make game window fixed size
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
+        self.user_data = user_data
+        # self.username = username
+        # self.player1 = username["username"]
+
         self.init_game()
         self.set_player_names()
 
     def update_checkers_score(self):
-        try:
-            with open("user_data.json", "r") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            # If the file doesn't exist, create an empty JSON structure
-            data = {"users": []}
 
-        users = data.get("users", [])
+        users = self.user_data.get("users", [])
         user_found = False
 
         for user in users:
             if user["username"] == self.winner:
-                user["checkers_wins"] = user.get("checkers_wins", 0) + 1
+                user["checkers_wins"] += 1
                 user_found = True
                 break
         
@@ -67,14 +72,13 @@ class Checkers:
             users.append(new_user)
 
         # Update the data dictionary
-        data["users"] = users
+        self.user_data["users"] = users
 
         # Save the updated data to the file
         with open("user_data.json", "w") as file:
-            json.dump(data, file, indent=4)
+            json.dump(self.user_data, file, indent=4)
 
         return
-
 
     # Initialize game components and draw the board in the background
     def init_game(self):
@@ -98,9 +102,9 @@ class Checkers:
         self.player1_entry = tk.Entry(self.root)
         self.player2_entry = tk.Entry(self.root)
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
-        self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1:", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1 (Black):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
-        self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2:", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2 (White):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 2 + 30, window=self.player2_entry)
 
         # Submit button
@@ -125,13 +129,13 @@ class Checkers:
     def init_board(self):
         board = [[0] * GRID_SIZE for _ in range(GRID_SIZE)]
         
-        # # Place black pieces (player 1)
+        # Place black pieces (player 1)
         for row in range(GRID_SIZE - 3, GRID_SIZE):
             for col in range(GRID_SIZE):
                 if (row + col) % 2 == 1:
                     board[row][col] = P1
 
-        # # Place white pieces (player 2)
+        # Place white pieces (player 2)
         for row in range(3):
             for col in range(GRID_SIZE):
                 if (row + col) % 2 == 1:
@@ -144,6 +148,15 @@ class Checkers:
         # test double jump
         # board[4][3] = P2
         # board[2][5] = P2
+
+        # test Player 1 Victory
+        # board[1][1] = P2
+        # board[2][2] = P1
+
+        # test Player 2 Victory
+        # board[1][1] = P2
+        # board[3][3] = P1
+
         return board
     
     # Draw a single piece 
@@ -416,9 +429,12 @@ class Checkers:
     #     else:
     #         return "No winner"
 
-    def reset_game(self):
+    def restart_checkers_game(self):
+        # This still needs tweaking, players are still swapped upon restart
+        # Also this doesn't properly reset if your testing the presets for P1 and P2 Victories
         self.canvas.delete("all")
-        self.__init__(self.root, self.canvas)
+        self.init_game()
+        self.set_player_names()
 
     # # Run the game
     # def run(self):
