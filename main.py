@@ -1,4 +1,3 @@
-
 """
 Author: Muhammad Hammad
 Date Authored: Nov. 22, 2023
@@ -92,16 +91,15 @@ root.geometry("900x700")
 root.state('zoomed') # Defaults to maximized view
 
 # Background Image
-background_image = tk.PhotoImage(file="background1.0.png")
+background_image = tk.PhotoImage(file="./img/background.png")
 background_label = tk.Label(root, image=background_image)
 background_label.place(relwidth=1, relheight=1)
 
 checkers_canvas_widget = tk.Canvas(root, width=400, height=400)  # Define checkers_canvas_widget here
-checkers_game = Checkers(root, checkers_canvas_widget, user_data, name)
+checkers_game = Checkers(root, checkers_canvas_widget, user_data)
 
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
 snake_game = Snake(root, snake_canvas_widget, user_data, name)
-
 
 # Each function will start the selected game and close all other games
 def play_hangman():
@@ -112,11 +110,11 @@ def play_hangman():
 def play_snake():
     unpack_hangman_elements()
     checkers_canvas_widget.pack_forget()
-    snake_canvas_widget.pack(pady=100)
+    snake_canvas_widget.pack(pady=25)
 
 def play_checkers():
     unpack_hangman_elements()
-    checkers_canvas_widget.pack(pady=100)
+    checkers_canvas_widget.pack(pady=25)
     snake_canvas_widget.pack_forget()
 
 def reset_game():
@@ -131,9 +129,9 @@ def reset_game():
 radio = tk.IntVar()
 
 # Radio buttons to play each game
-game1_radio = tk.Button(root, text="Play Hangman", command=play_hangman, font=("Arial", 12), bg="red", fg="black", activeforeground="white").place(x=80, y=450)
-game2_radio = tk.Button(root, text="Play Snake", command=play_snake, font=("Arial", 12), bg="#660000", fg="black", activeforeground="white").place(x=80, y=500)
-game3_radio = tk.Button(root, text="Play Checkers", command=play_checkers, font=("Arial", 12), bg="#F39C12", fg="black", activeforeground="white").place(x=80, y=550)
+game1_radio = tk.Radiobutton(root, text="Play Hangman", variable=radio, value=1, command=play_hangman, font=("Arial", 12), bg="red", fg="black").place(x=80, y=450)
+game2_radio = tk.Radiobutton(root, text="Play Snake", variable=radio, value=2, command=play_snake, font=("Arial", 12), bg="#FF8C00", fg="black").place(x=80, y=500)
+game3_radio = tk.Radiobutton(root, text="Play Checkers", variable=radio, value=3, command=play_checkers, font=("Arial", 12), bg="#FFFF00", fg="black").place(x=80, y=550)
 
 # Create and pack the username display and attempts widgets
 username_display_label = tk.Label(root, text=f"Username: {username}", font=("Arial", 14), bg="#BDC3C7")

@@ -39,7 +39,7 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
-    def __init__(self, root_window, the_canvas_window, user_data, username):
+    def __init__(self, root_window, the_canvas_window, user_data):
         self.root = root_window
 
         # Initialize canvas
@@ -49,8 +49,8 @@ class Checkers:
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
         self.user_data = user_data
-        self.username = username
-        self.player1 = username["username"]
+        # self.username = username
+        # self.player1 = username["username"]
 
         self.init_game()
         self.set_player_names()
@@ -80,7 +80,6 @@ class Checkers:
 
         return
 
-
     # Initialize game components and draw the board in the background
     def init_game(self):
         self.board = self.init_board()
@@ -100,12 +99,12 @@ class Checkers:
     # Prompt user to input player names via entry boxes 
     def set_player_names(self):
         # Entry boxes
-        # self.player1_entry = tk.Entry(self.root)
+        self.player1_entry = tk.Entry(self.root)
         self.player2_entry = tk.Entry(self.root)
         self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
-        # self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1:", fill="black", font=('Helvetica 15 bold'))
-        # self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
-        self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2:", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1 (Black):", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2 (White):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 2 + 30, window=self.player2_entry)
 
         # Submit button
@@ -115,12 +114,12 @@ class Checkers:
     # Save player names, clear initial screen, and draw board to start game
     def start_game(self):
         # Get player names from the entries
-        # self.player1 = self.player1_entry.get()
+        self.player1 = self.player1_entry.get()
         self.player2 = self.player2_entry.get()
 
         # Clear the canvas and remove entry fields and submit button
         self.canvas.delete("all")
-        # self.player1_entry.destroy()
+        self.player1_entry.destroy()
         self.player2_entry.destroy()
         self.submit_btn.destroy()
 
