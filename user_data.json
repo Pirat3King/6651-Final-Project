@@ -10,13 +10,13 @@
             "username": "",
             "hangman_wins": 0,
             "snake_score": 0,
-            "checkers_wins": 0
+            "checkers_wins": 2
         },
         {
             "username": "bob",
             "hangman_wins": 0,
             "snake_score": 0,
-            "checkers_wins": 2
+            "checkers_wins": 3
         },
         {
             "username": null,
@@ -28,7 +28,7 @@
             "username": "asdf",
             "hangman_wins": 0,
             "snake_score": 0,
-            "checkers_wins": 0
+            "checkers_wins": 1
         }
     ]
 }
