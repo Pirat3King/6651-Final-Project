@@ -9,9 +9,6 @@ From Trevor: I changed the way the api is accessed in the program,
 the json is passed in from main like the other games. 
 I also did away with the player 1 entry. To me it makes more sence to just set 
 player 1 to the current user when the application is launched.
-
-From Trevor (Nov 29): Reset button in main resets the checkers game but there are still some issues 
-    Will - Fixed Dec 03
 """
 
 # OpenAI's ChatGPT was utilized to assist in the creation of this program
@@ -39,35 +36,32 @@ crown_img = os.path.join(cur_path, '..', 'img', 'small-crown.png')
 
 # Checkers class
 class Checkers:
+    #Set up object to initialize the game and handle player names
     def __init__(self, root_window, the_canvas_window, user_data):
         self.root = root_window
-
-        # Initialize canvas
         self.canvas = the_canvas_window
-
+        self.user_data = user_data
+        
         # Make game window fixed size
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
-
-        self.user_data = user_data
-        # self.username = username
-        # self.player1 = username["username"]
 
         self.init_game()
         self.set_player_names()
 
+    # Update the score for the winner in the json scoreboard file
     def update_checkers_score(self):
-
         users = self.user_data.get("users", [])
         user_found = False
 
+        # Find winner's name in user data
         for user in users:
             if user["username"] == self.winner:
                 user["checkers_wins"] += 1
                 user_found = True
                 break
-        
+
+        # If the username is not found, create a new user and add checkers win
         if not user_found:
-            # If the username is not found, create a new user and add checkers win
             new_user = {"username": self.winner, "hangman_wins": 0, "snake_score": 0, "checkers_wins": 1}
             users.append(new_user)
 
@@ -101,13 +95,13 @@ class Checkers:
         # Entry boxes
         self.player1_entry = tk.Entry(self.root)
         self.player2_entry = tk.Entry(self.root)
-        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box) # grey box
+        self.canvas.create_image(WIDTH // 2, HEIGHT // 2, anchor="center", image=self.win_box) # grey box
         self.canvas.create_text(WIDTH // 2, HEIGHT // 3, text="Player 1 (Black):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 3 + 30, window=self.player1_entry)
         self.canvas.create_text(WIDTH // 2, HEIGHT // 2, text="Player 2 (White):", fill="black", font=('Helvetica 15 bold'))
         self.canvas.create_window(WIDTH // 2, HEIGHT // 2 + 30, window=self.player2_entry)
 
-        # Submit button
+        # Start button
         self.submit_btn = tk.Button(self.root, text="Start Game", command=self.start_game)
         self.canvas.create_window(WIDTH // 2, HEIGHT * 2 // 3, window=self.submit_btn)
 
@@ -141,7 +135,10 @@ class Checkers:
                 if (row + col) % 2 == 1:
                     board[row][col] = P2
 
-        # test king functionality (comment the above loops to clear other pieces)
+        ##### Testing / Debugging #####
+        ##### Comment the above loop(s) to clear pieces #####
+        
+        # test king functionality 
         # board[6][1] = P2
         # board[1][4] = P1 
 
@@ -199,7 +196,6 @@ class Checkers:
 
     # Handle user selecting a square/piece
     def select_square(self, row, col):
-        # Check if a piece is already selected
         if self.selected_piece is None:
             # Select if piece belongs to current player
             if self.board[row][col] == self.current_player or self.board[row][col] - 2 == self.current_player:
@@ -218,16 +214,16 @@ class Checkers:
             # Attempt to move the selected piece to the clicked square
             else:
                 if self.move_piece((row, col)):
-                    # If a jump was made, check for double jump
+                    # If a jump was made, check for double jump and update selected piece
                     if self.jump_in_progress and self.can_jump((row, col)):
                         self.selected_piece = (row, col)
                     
-                    # If another jump is not possible, end turn
+                    # If another jump is not possible, check for win condition and end turn
                     else: 
                         self.jump_in_progress = False
                         self.selected_piece = None
-                        if self.check_win() == False: #Check for win condition and change player turn
-                            self.current_player = P2 if self.current_player == P1 else P1
+                        if self.check_win() == False:
+                            self.current_player = P2 if self.current_player == P1 else P1 # Change player turn if no win
                         else: # Exit if win
                             self.game_over = True
                             self.update_checkers_score()
@@ -263,13 +259,15 @@ class Checkers:
     def king_me(self, pos):
         row, col = pos
 
+        # P1 king
         if self.current_player == P1 and row == 0 and self.board[row][col] == P1:
-            self.board[row][col] = P1 + 2  # P1 king
+            self.board[row][col] = P1 + 2
 
+        # P2 king
         elif self.current_player == P2 and row == GRID_SIZE - 1 and self.board[row][col] == P2:
-            self.board[row][col] = P2 + 2  # P2 king
+            self.board[row][col] = P2 + 2 
 
-    # Check if selected target position is valid
+    # Check if selected target position is valid to move to
     def is_valid_move(self, end_pos, start_pos=None, player=None):
         if start_pos is None:
             start_pos = self.selected_piece
@@ -284,32 +282,33 @@ class Checkers:
         if row_end < 0 or row_end >= GRID_SIZE or col_end < 0 or col_end >= GRID_SIZE:
             return False, None
 
-        # Check end position is empty
+        # Check target square is empty/open 
         if self.board[row_end][col_end] != 0:
             return False, None
         
-        # King piece - can move and jump in any direction
+        # King piece movement - can move and jump in any direction
         if self.board[row_start][col_start] in [P1+2, P2+2]:
             # Regular move - 1 square, not allowed after a jump
             if self.jump_in_progress == False and abs(row_end - row_start) == 1 and abs(col_end - col_start) == 1:
                 return True, None
             
-            # Jump move - 2 squares
+            # Jump move - 2 squares over opponent piece
             if abs(row_end - row_start) == 2 and abs(col_end - col_start) == 2:
                 return self.calc_jump(end_pos, start_pos, player)
         
-        # Regular piece - can only move and jump "forward"
+        # Regular piece movement - can only move and jump "forward"
         elif self.board[row_start][col_start] in [P1, P2]:
-            # Set play direction
+            # Set play direction based on piece color
             move_direction = -1 if player == P1 else 1
 
             # Regular move - 1 square, not allowed after a jump
             if self.jump_in_progress == False and row_end == row_start + move_direction and abs(col_end - col_start) == 1:
                 return True, None
 
-            # Jump move - 2 squares
+            # Jump move - 2 squares over opponent piece
             if row_end == row_start + 2 * move_direction and abs(col_end - col_start) == 2:
                 return self.calc_jump(end_pos, start_pos, player)
+        
         else:
             return False, None
     
@@ -342,7 +341,7 @@ class Checkers:
         row, col = start_pos
         piece = self.board[row][col]
 
-        # Set directions for possible regular moves
+        # Set direction offsets for possible regular moves
         if piece == P1:
             reg_move = [(-1, -1), (-1, 1)]
         elif piece == P2:
@@ -374,7 +373,7 @@ class Checkers:
         row, col = start_pos
         piece = self.board[row][col]
 
-        # Set directions for possible jump moves
+        # Set direction offsets for possible jump moves
         if piece == P1: 
             jump_moves = [(-2, -2), (-2, 2)]
         elif piece == P2:
@@ -394,7 +393,7 @@ class Checkers:
     def check_win(self):
         opponent = P2 if self.current_player == P1 else P1
 
-        # Check if the opponent can move any piece
+        # Scan board to check if the opponent can move any piece
         for row in range(GRID_SIZE):
             for col in range(GRID_SIZE):
                 piece = self.board[row][col]
@@ -402,45 +401,31 @@ class Checkers:
                     if self.can_move_or_jump((row, col), opponent):
                         return False # Opponent can still move
 
-        # If no opponent pieces left or they can't move, the current player wins
+        # If opponent has no pieces or they can't move, the current player wins
         self.win()
         return True      
     
+    # Set 'winner' and display endgame screen
     def win(self):
         self.winner = self.player1 if self.current_player == P1 else self.player2
 
         # Disable clicking on squares
         self.canvas.unbind("<Button-1>")
 
-        # Create exit button
-        # quit_button = tk.Button(self.root, text='Exit Checkers', command=self.root.destroy)
-
         # Display win screen
-        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_box)
-        self.canvas.create_text(WIDTH/2, HEIGHT/5, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
-        self.canvas.create_image(WIDTH/2, HEIGHT/2, anchor="center", image=self.win_img)
-        self.canvas.create_text(WIDTH/2, HEIGHT/1.33, text=f"{self.winner} wins!", fill="black", font=('Helvetica 15 bold'))
-        # self.canvas.create_window(WIDTH // 2, HEIGHT/1.2, window=quit_button)
+        self.canvas.create_image(WIDTH // 2, HEIGHT // 2, anchor="center", image=self.win_box)
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 5, text="GAME OVER", fill="black", font=('Helvetica 15 bold'))
+        self.canvas.create_image(WIDTH // 2, HEIGHT // 2, anchor="center", image=self.win_img)
+        self.canvas.create_text(WIDTH // 2, HEIGHT // 1.25, text=f"{self.winner} wins!", fill="black", font=('Helvetica 15 bold'))
     
-    # Returns the winner's name if it exists
-    # def get_winner(self):
-    #     if self.game_over:
-    #         return self.winner
-    #     else:
-    #         return "No winner"
-
+    # Restart the game
     def restart_checkers_game(self):
-        # This still needs tweaking, players are still swapped upon restart
-        # Also this doesn't properly reset if your testing the presets for P1 and P2 Victories
         self.canvas.delete("all")
         self.init_game()
         self.set_player_names()
 
-    # # Run the game
+# Uncomment below to run game outside of main application
     # def run(self):
     #     self.root.mainloop()
-
-# Uncomment to run outside of main application
 # checker_game = Checkers()
 # checker_game.run()
-# print(f"Winner: {checker_game.get_winner()}")

@@ -15,7 +15,5 @@ python3 ./main.py
 ```
 
 ## TODO
-  - Fix multiuser scoring bug
-  - Add "How To Play" info
-  - Make main app pretty
-  - Get rid of all the windows
+  - Add better documentation; How To Play info
+  - Move file handling to main.py
