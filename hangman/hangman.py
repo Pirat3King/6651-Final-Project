@@ -6,7 +6,7 @@ Class: CSCI 6651-01
 Goal: This is a program to run a simple game of hangman
 Sources:
 OpenAI's ChatGPT was utilized to assist in the creation of this program
-Words classified by difficultry from: https://github.com/LoraineYoko/word_difficulty/blob/master/README.md
+Words classified by difficulty from: https://github.com/LoraineYoko/word_difficulty/blob/master/README.md
 Zhang, S., Jia, Q., Shen, L., Zhao, Y. (2020). Automatic Classification and Comparison of Words by Difficulty.
 In: Yang, H., Pasupa, K., Leung, A.CS., Kwok, J.T., Chan, J.H., King, I. (eds) Neural Information Processing.
 ICONIP 2020. Communications in Computer and Information Science, vol 1332. Springer, Cham.
