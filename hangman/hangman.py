@@ -31,6 +31,7 @@ Updates from Kiren 12/4-12/5: Refactored code to make it more modular
 
 import random
 import json
+import os
 import tkinter as tk
 
 WIDTH, HEIGHT = 400, 400
@@ -139,13 +140,8 @@ class Hangman:
         self.update_hangman()
 
     def choose_random_word(self, difficulty):
-        file_path = ''
-        if difficulty == 'easy':
-            file_path = 'easy_words.txt'
-        elif difficulty == 'medium':
-            file_path = 'medium_words.txt'
-        elif difficulty == 'hard':
-            file_path = 'hard_words.txt'
+        file_path = os.path.join(os.path.dirname(__file__), f'{difficulty}_words.txt')
+
         with open(file_path, 'r') as file:
             words = file.read().splitlines()
         selected_word = random.choice(words)
