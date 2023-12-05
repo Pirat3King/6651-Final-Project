@@ -1,19 +1,21 @@
 """
 Author: Muhammad Hammad
 Date Authored: Nov. 22, 2023
-Last Updated: Nov. 29, 2023 by Trevor
+Last Updated: Dec. 05, 2023 by Kiren
 Class: CSCI 6651-01
 Goal: The code aims to create a Python Tkinter-based graphical interface for playing Hangman, Snake, and Checkers games, with user data management, scoreboard display, and game interactions.
 Sources: AI: Blackbox, chatGPT 
 Updates from Trevor: Reset button was changed to aesthetically similar to the quit button and placed beneath it
                      Reset button works for all 3 games but see hangman and checkers notes
+Update from Kiren: Updated hangman to have its own canvas like the other games
+                   Updated reset for hangman to use the reset game function from hangman
 """
 
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import json
 from checkers.checkers import Checkers
-from hangman.hangman import Hangman, pack_hangman_elements, unpack_hangman_elements
+from hangman.hangman import Hangman
 from snake.snake import Snake
 
 game_running = False  # Flag to track whether a game is currently running
@@ -101,26 +103,28 @@ checkers_game = Checkers(root, checkers_canvas_widget, user_data)
 snake_canvas_widget = tk.Canvas(root, width=400, height=400, bg="black")
 snake_game = Snake(root, snake_canvas_widget, user_data, name)
 
+hangman_canvas_widget = tk.Canvas(root, width=400, height=400, bg="#FAF5BA")
+hangman_game = Hangman(root, hangman_canvas_widget, user_data, name)
+
 # Each function will start the selected game and close all other games
 def play_hangman():
-    pack_hangman_elements()
+    hangman_canvas_widget.pack(pady=25)
     checkers_canvas_widget.pack_forget()
     snake_canvas_widget.pack_forget()
 
 def play_snake():
-    unpack_hangman_elements()
+    hangman_canvas_widget.pack_forget()
     checkers_canvas_widget.pack_forget()
     snake_canvas_widget.pack(pady=25)
 
 def play_checkers():
-    unpack_hangman_elements()
+    hangman_canvas_widget.pack_forget()
     checkers_canvas_widget.pack(pady=25)
     snake_canvas_widget.pack_forget()
 
 def reset_game():
     if radio.get() == 1:
-        # The reset button for hangman is a seperate button in the hangman file itself
-        pass
+        hangman_game.reset_game()
     elif radio.get() == 2:
         snake_game.restart_snake_game()
     elif radio.get() == 3:
@@ -148,9 +152,6 @@ terminate_button.place(relx=.95, rely=.05, anchor=tk.NE)
 # Reset Button
 reset_button = tk.Button(root, text="Reset", command=reset_game, font=("Arial", 10), bg="orange", fg="white")
 reset_button.place(relx=.95, rely=.10, anchor=tk.NE)
-
-# Hangman must be last otherwise it bombs out
-Hangman(root, user_data, name)
 
 root.mainloop()
 
