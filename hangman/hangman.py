@@ -103,11 +103,18 @@ class Hangman:
 
     # Function to get a random word from wordlist
     def choose_random_word(self):
-        #with open('wordlist.txt', 'r') as file:
-        #    words = file.read().splitlines()
-        #selected_word = random.choice(words)
-        selected_word = 'lamp'
-        # print(f"The selected word is: {selected_word}")
+        file_path = ''
+        difficulty = 'easy'
+        if difficulty == 'easy':
+            file_path = 'easy_words.txt'
+        elif difficulty == 'medium':
+            file_path = 'medium_words.txt'
+        elif difficulty == 'hard':
+            file_path = 'hard_words.txt'
+        with open(file_path, 'r') as file:
+            words = file.read().splitlines()
+        selected_word = random.choice(words)
+        print(f"The selected word is: {selected_word}")
         return selected_word
 
     # Function to update the hangman figure
@@ -181,9 +188,8 @@ class Hangman:
         if self.is_game_won():
             message_label.config(text="Congratulations! You've won!")
             self.update_hangman_wins()  # Call the method to update wins
-        elif self.current_attempt == self.attempts and not self.max_attempts_message_displayed:
+        elif self.current_attempt == self.attempts:
             message_label.config(text=f"Game over! The word was '{self.word_to_guess}'")
-            self.max_attempts_message_displayed = True
         else:
             message_label.config(text="")  # Clear the message label for the next guess
 
@@ -205,6 +211,7 @@ class Hangman:
         self.guessed_letters = []
         self.attempts = 6
         self.current_attempt = 0
+        self.max_attempts_message_displayed = False
         self.update_hangman()
         word_display.set(" ".join(["_" for _ in self.word_to_guess]))
         attempts_label.config(text=f"Attempts left: {self.attempts}")
