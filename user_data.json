@@ -5,6 +5,12 @@
             "hangman_wins": 0,
             "snake_score": 0,
             "checkers_wins": 0
+        },
+        {
+            "username": "Trevor",
+            "hangman_wins": 0,
+            "snake_score": 666666666666666666666666666666666666666666666666666666666666666666666666666,
+            "checkers_wins": 0
         }
     ]
 }

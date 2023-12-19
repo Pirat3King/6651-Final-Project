@@ -7,6 +7,7 @@ Last Updated: Nov. 29, 2023 by Trevor
 OpenAI's ChatGPT was utilized to assist in the creation of this program
 
 Updates from Trevor: Snake now has a proper start button and game over prompt
+                     added accelerator variable to increase snake speed
 """
 
 import tkinter as tk
@@ -18,7 +19,7 @@ CANVAS_SIZE = 400
 GRID_SIZE = 20
 GRID_WIDTH = CANVAS_SIZE // GRID_SIZE
 GRID_HEIGHT = CANVAS_SIZE // GRID_SIZE
-SNAKE_SPEED = 500  # 150  # Delay in milliseconds
+SNAKE_SPEED = 150  # Delay in milliseconds, increase to make the starting speed slower
 
 
 class Snake:
@@ -63,6 +64,9 @@ class Snake:
         self.user_data = user_data
         self.username = username
 
+        # Increases the speed upon eating food
+        self.accelerator = 0
+
     def generate_food(self):
         while self.food in self.snake:
             self.food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
@@ -92,6 +96,7 @@ class Snake:
                 # Check if the snake eats the food
                 if self.snake[0] == self.food:
                     self.score += 1
+                    self.accelerator += 1
                     self.generate_food()
                 else:
                     self.snake.pop()
@@ -104,7 +109,7 @@ class Snake:
             self.score_label.config(text=f"Score: {self.score}")
 
             # Schedule the next move
-            self.canvas.after(SNAKE_SPEED, self.move_snake)
+            self.canvas.after(SNAKE_SPEED - self.accelerator, self.move_snake)
 
     def draw_snake(self):
         for segment in self.snake:
@@ -140,6 +145,7 @@ class Snake:
     def restart_snake_game(self):
         # self.update_snake_score()
         self.game_over_label.place_forget()
+        self.accelerator = 0
         self.snake = [(4, 5), (4, 4), (4, 3)]
         self.direction = (0, 1)
         self.generate_food()
