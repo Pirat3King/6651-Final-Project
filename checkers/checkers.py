@@ -3,11 +3,12 @@ File: checkers.py
 Authors: William Turner
 Brief: Implementation of checkers using tkinter GUI
 Date: 2023/10/14
-Last Updated: Nov. 29, 2023 by Trevor
+Last Updated: Dec. 19, 2023 by Kiren
 
+From Kiren: Fixed the bug in checkers TypeError: cannot unpack non-iterable NoneType by checking if move_result = None
 From Trevor: I changed the way the api is accessed in the program,
 the json is passed in from main like the other games. 
-I also did away with the player 1 entry. To me it makes more sence to just set 
+I also did away with the player 1 entry. To me it makes more sense to just set
 player 1 to the current user when the application is launched.
 """
 
@@ -236,18 +237,21 @@ class Checkers:
         row, col = end_pos
 
         # Check for valid move
-        move_is_valid, jumped_piece = self.is_valid_move(end_pos)
+        move_result = self.is_valid_move(end_pos)
 
-        if move_is_valid:
-            # Move piece to target square
-            self.board[row][col] = self.board[self.selected_piece[0]][self.selected_piece[1]]
-            self.board[self.selected_piece[0]][self.selected_piece[1]] = 0
-            # Remove jumped piece from board
-            if jumped_piece != None:
-                self.board[jumped_piece[0]][jumped_piece[1]] = 0
-                self.jump_in_progress = True
-            else:
-                self.jump_in_progress = False
+        if move_result is not None:
+            move_is_valid, jumped_piece = move_result
+
+            if move_is_valid:
+                # Move piece to target square
+                self.board[row][col] = self.board[self.selected_piece[0]][self.selected_piece[1]]
+                self.board[self.selected_piece[0]][self.selected_piece[1]] = 0
+                # Remove jumped piece from board
+                if jumped_piece != None:
+                    self.board[jumped_piece[0]][jumped_piece[1]] = 0
+                    self.jump_in_progress = True
+                else:
+                    self.jump_in_progress = False
         else:
             return False
         
