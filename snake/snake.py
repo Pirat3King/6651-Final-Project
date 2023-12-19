@@ -3,9 +3,10 @@ File: snake.py
 Authors: Trevor Ralston
 Brief: Implementation of snake using tkinter GUI
 Date: 2023/11/7
-Last Updated: Nov. 29, 2023 by Trevor
+Last Updated: Dec. 19, 2023 by Kiren
 OpenAI's ChatGPT was utilized to assist in the creation of this program
 
+Updates from Kiren: Allows user to select difficulty level for each game
 Updates from Trevor: Snake now has a proper start button and game over prompt
                      added accelerator variable to increase snake speed
 """
@@ -19,13 +20,16 @@ CANVAS_SIZE = 400
 GRID_SIZE = 20
 GRID_WIDTH = CANVAS_SIZE // GRID_SIZE
 GRID_HEIGHT = CANVAS_SIZE // GRID_SIZE
-SNAKE_SPEED = 150  # Delay in milliseconds, increase to make the starting speed slower
+EASY_SPEED = 300
+MEDIUM_SPEED = 225
+HARD_SPEED = 150
+# SNAKE_SPEED = 150  # Delay in milliseconds, increase to make the starting speed slower
 
 
 class Snake:
 
     # main_tkinter is the tkinter window (root) passed in from main
-    # the_canvas_window is a canvas widget created in main spefically for the snake game
+    # the_canvas_window is a hangman_canvas widget created in main spefically for the snake game
     def __init__(self, main_tkinter, the_canvas_window, user_data, username):
         # Initial snake position and direction
         self.snake = [(4, 5), (4, 4), (4, 3)]
@@ -36,8 +40,10 @@ class Snake:
         self.score = 0
         # Initialize game over flag
         self.game_over = False
+        # Initialize difficulty to None
+        self.difficulty = None
 
-        # Create the canvas
+        # Create the hangman_canvas
         self.canvas = the_canvas_window
 
         # Create the score label
@@ -45,11 +51,15 @@ class Snake:
         self.score_label.place(x=180, y=2)
 
         # Create the game over label
-        self.game_over_label = tk.Label(self.canvas, text="Game Over\nHit Reset to Play Again", fg="white", bg="red", width=20)
+        self.game_over_label = tk.Label(self.canvas, text="Game Over\nHit Reset to Play Again", fg="white", bg="red",
+                                        width=20)
 
         # Create Start Button, clicking will begin game
-        self.start_button = tk.Button(self.canvas, text="Start Game", fg="white", bg="blue", command=self.move_snake)
-        self.start_button.place(x=170, y=200)
+        # self.start_button = tk.Button(self.canvas, text="Start Game", fg="white", bg="blue", command=self.move_snake)
+        # self.start_button.place(x=170, y=200)
+
+        # Set difficulty: the more difficult, the faster the snake
+        self.set_difficulty()
 
         # Bind arrow key events, these are bound to the main tkinter window (root)
         main_tkinter.bind("<Up>", self.on_key_press)
@@ -67,12 +77,47 @@ class Snake:
         # Increases the speed upon eating food
         self.accelerator = 0
 
+    def place_buttons(self):
+        self.difficulty_label.place(relx=0.32, rely=0.3)
+        self.easy_button.place(relx=0.45, rely=0.38)
+        self.medium_button.place(relx=0.43, rely=0.46)
+        self.hard_button.place(relx=0.45, rely=0.54)
+
+    def forget_buttons(self):
+        self.difficulty_label.place_forget()
+        self.easy_button.place_forget()
+        self.medium_button.place_forget()
+        self.hard_button.place_forget()
+
+    def set_difficulty(self):
+        self.difficulty_label = tk.Label(self.canvas, text="Choose Difficulty Level:", font="Arial, 12", fg="#FFFFFF",
+                                         bg="#000000")
+        self.easy_button = tk.Button(self.canvas, text="Easy", bg="#FAE070",
+                                     command=lambda: self.move_snake('easy'))
+        self.medium_button = tk.Button(self.canvas, text="Medium", bg="#F18D32",
+                                       command=lambda: self.move_snake('medium'))
+        self.hard_button = tk.Button(self.canvas, text="Hard", bg="#DE4923",
+                                     command=lambda: self.move_snake('hard'))
+        self.place_buttons()
+
     def generate_food(self):
         while self.food in self.snake:
             self.food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
 
-    def move_snake(self):
-        self.start_button.place_forget()
+    def move_snake(self, difficulty):
+        # self.start_button.place_forget()
+        self.forget_buttons()
+
+        # Set snake speed based on difficulty level
+        if difficulty == 'easy':
+            snake_speed = EASY_SPEED
+        elif difficulty == 'medium':
+            snake_speed = MEDIUM_SPEED
+        elif difficulty == 'hard':
+            snake_speed = HARD_SPEED
+        else:
+            raise ValueError("Invalid difficulty level")
+
         if not self.game_over:
             # Calculate the new head position
             head_x, head_y = self.snake[0]
@@ -96,7 +141,7 @@ class Snake:
                 # Check if the snake eats the food
                 if self.snake[0] == self.food:
                     self.score += 1
-                    self.accelerator += 1
+                    self.accelerator += 10
                     self.generate_food()
                 else:
                     self.snake.pop()
@@ -109,7 +154,7 @@ class Snake:
             self.score_label.config(text=f"Score: {self.score}")
 
             # Schedule the next move
-            self.canvas.after(SNAKE_SPEED - self.accelerator, self.move_snake)
+            self.canvas.after(snake_speed - self.accelerator, lambda: self.move_snake(difficulty))
 
     def draw_snake(self):
         for segment in self.snake:
@@ -152,17 +197,16 @@ class Snake:
         self.score = 0
         self.game_over = False
         self.score_label.config(text="Score: 0")
-        self.move_snake()
+        # Set the difficulty again to restart the game
+        self.set_difficulty()
 
-    def run(self):
-        self.move_snake()
 
-    #function to update snake score in the json file
+    # function to update snake score in the json file
     def update_snake_score(self):
 
         users = self.user_data.get("users", [])
 
-        for user in users:         
+        for user in users:
             if user["username"] == self.username["username"]:
                 if user["snake_score"] < self.score:
                     # This doesn't update the api, make sure to access the information from user or username, not user_data
@@ -174,11 +218,10 @@ class Snake:
         self.user_data["users"] = users
 
         # Save the updated data to the file
-        with open("user_data.json", "w") as file: 
+        with open("user_data.json", "w") as file:
             json.dump(self.user_data, file, indent=4)
 
         return
-
 
 # snake_game = Snake()
 # snake_game.run()
