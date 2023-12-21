@@ -11,6 +11,12 @@
             "hangman_wins": 0,
             "snake_score": 666666666666666666666666666666666666666666666666666666666666666666666666666,
             "checkers_wins": 0
+        },
+        {
+            "username": "asdf",
+            "hangman_wins": 0,
+            "snake_score": 4,
+            "checkers_wins": 0
         }
     ]
 }

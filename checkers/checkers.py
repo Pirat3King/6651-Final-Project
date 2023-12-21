@@ -252,6 +252,8 @@ class Checkers:
                     self.jump_in_progress = True
                 else:
                     self.jump_in_progress = False
+            else:
+                return False
         else:
             return False
         
